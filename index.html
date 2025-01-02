@@ -1,0 +1,60 @@
+<!-- index.html: Main HTML structure -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>TimeTally</title>
+  <!-- Link to external CSS -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Container for the entire app -->
+  <div class="container">
+    <h1>TimeTally</h1>
+
+    <!-- Task input: name, time, and unit -->
+    <div class="task-input">
+      <input type="text" id="taskName" placeholder="Task Name" />
+      <input type="number" id="taskTime" placeholder="Time" />
+      <select id="timeUnit">
+        <option value="seconds">Seconds</option>
+        <option value="minutes">Minutes</option>
+        <option value="hours">Hours</option>
+      </select>
+      <button onclick="addTask()">Add Task</button>
+    </div>
+
+    <!-- List of tasks -->
+    <ul id="taskList"></ul>
+
+    <!-- Progress bar for the current task -->
+    <div class="progress-container">
+      <div class="progress-bar" id="progressBar" style="width:0%"></div>
+    </div>
+
+    <!-- Controls for managing timers -->
+    <div class="controls">
+      <button onclick="startTimer()">Start</button>
+      <button onclick="skipTask()">Skip</button>
+      <button onclick="completeEarly()">Complete Early</button>
+      <button onclick="pauseTimer()">Pause</button>
+      <button onclick="exitTimer()">Exit</button>
+    </div>
+
+    <!-- Import/Export section -->
+    <div class="import-export">
+      <button onclick="exportTasksToXML()">Export XML</button>
+      <input type="file" id="importFile" accept=".xml" onchange="importTasksFromXML(event)" />
+    </div>
+
+    <!-- Estimated finish time readout -->
+    <div class="estimated-finish" id="estimatedFinishTime"></div>
+
+    <!-- Audio element for playing notifications -->
+    <audio id="notificationSound" src="https://www.soundjay.com/buttons/beep-07.mp3" preload="auto"></audio>
+  </div>
+
+  <!-- Reference the JavaScript file -->
+  <script src="app.js"></script>
+</body>
+</html>
