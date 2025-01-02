@@ -1,14 +1,10 @@
-<!-- index.html: Main HTML structure for TimeTally -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <!-- Ensures mobile responsiveness -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TimeTally</title>
-  <!-- Link to Font Awesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-  <!-- Link to external CSS -->
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -33,13 +29,11 @@
     <!-- List of tasks -->
     <ul id="taskList"></ul>
 
-    <!-- A visually distinct section for the timer info -->
+    <!-- Distinct section for the timer info -->
     <div class="timer-section">
-      <!-- Progress bar for the current task -->
       <div class="progress-container">
         <div class="progress-bar" id="progressBar" style="width:0%"></div>
       </div>
-      <!-- Additional textual info about the current timer -->
       <div class="timer-info">
         <div id="timerText" class="timer-text"></div>
         <div id="timerPercent" class="timer-percent"></div>
@@ -70,9 +64,8 @@
       </button>
     </div>
 
-    <!-- Import/Export section with separate areas for exporting and importing -->
+    <!-- Import/Export section -->
     <div class="import-export">
-      <!-- Extra spacing above the export button -->
       <div class="export-section">
         <button class="btn-export" onclick="exportTasksToXML()">
           <i class="fas fa-file-export"></i>
@@ -80,20 +73,17 @@
         </button>
       </div>
 
-      <!-- Import section starts with just the file input -->
       <div class="import-section" id="importSection">
         <input type="file" id="importFile" accept=".xml" onchange="onFileLoaded(event)" />
       </div>
     </div>
 
-    <!-- Estimated finish time readout -->
     <div class="estimated-finish" id="estimatedFinishTime"></div>
 
-    <!-- Audio element for playing notifications when a task finishes -->
+    <!-- Audio for task completion -->
     <audio id="notificationSound" src="https://www.soundjay.com/buttons/beep-07a.mp3" preload="auto"></audio>
   </div>
 
-  <!-- Reference the JavaScript file -->
   <script src="app.js"></script>
 </body>
 </html>

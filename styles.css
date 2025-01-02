@@ -1,6 +1,5 @@
 /* styles.css: Custom styling for TimeTally */
 
-/* Basic resets and responsive settings */
 html, body {
   margin: 0;
   padding: 0;
@@ -19,20 +18,19 @@ html, body {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Headings */
 h1 {
   margin-top: 0;
   margin-bottom: 20px;
   text-align: center;
 }
 
-/* Task input section */
 .task-input {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   margin-bottom: 20px;
 }
+
 .task-input input,
 .task-input select {
   flex: 1;
@@ -42,8 +40,9 @@ h1 {
   border: 1px solid #ccc;
   border-radius: 4px;
 }
+
 .task-input button {
-  background: #4caf50; 
+  background: #4caf50;
   color: #fff;
   border: none;
   border-radius: 4px;
@@ -55,12 +54,12 @@ h1 {
   background: #43a047;
 }
 
-/* Task list styling */
 #taskList {
   list-style: none;
   padding: 0;
   margin: 0;
 }
+
 .task-item {
   display: flex;
   align-items: center;
@@ -68,27 +67,30 @@ h1 {
   padding: 8px;
   border-bottom: 1px solid #eee;
 }
+
 .task-details {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
+
 .task-name {
   font-weight: bold;
   margin-bottom: 2px;
 }
+
 .task-time,
 .edit-fields {
   font-size: 14px;
 }
 
-/* Each task's actions */
 .task-actions {
   display: flex;
   gap: 5px;
 }
+
 .task-actions button {
-  background: #2196f3; 
+  background: #2196f3;
   color: #fff;
   border: none;
   border-radius: 4px;
@@ -100,14 +102,13 @@ h1 {
   background: #1976d2;
 }
 
-/* Edit fields (name/time) */
 .edit-fields input {
   margin-right: 5px;
   padding: 4px;
   font-size: 12px;
 }
 .edit-fields button {
-  background: #4caf50; 
+  background: #4caf50;
   color: #fff;
   border: none;
   border-radius: 4px;
@@ -121,16 +122,16 @@ h1 {
   background: #43a047;
 }
 
-/* Distinct section for the timer info */
+/* Timer section */
 .timer-section {
   margin-top: 20px;
   border: 1px solid #ccc;
   border-radius: 6px;
   padding: 10px;
   background: #fafafa;
+  margin-bottom: 15px;
 }
 
-/* Progress bar */
 .progress-container {
   background: #ddd;
   border-radius: 4px;
@@ -145,7 +146,6 @@ h1 {
   transition: width 0.3s ease;
 }
 
-/* Timer additional info (duration, percentage) */
 .timer-info {
   display: flex;
   align-items: center;
@@ -157,7 +157,6 @@ h1 {
   margin: 4px 0;
 }
 
-/* Controls at the bottom */
 .controls {
   display: flex;
   flex-wrap: wrap;
@@ -165,6 +164,7 @@ h1 {
   margin-top: 15px;
   justify-content: center;
 }
+
 .controls button {
   border: none;
   border-radius: 4px;
@@ -177,6 +177,7 @@ h1 {
   align-items: center;
   gap: 5px;
 }
+
 .btn-start {
   background: #4caf50;
 }
@@ -202,16 +203,16 @@ h1 {
   background: #616161;
 }
 .btn-red {
-  background: #f44336; 
+  background: #f44336;
 }
 .btn-red:hover {
   background: #e53935;
 }
 
-/* Import/Export section */
 .import-export {
-  margin-top: 25px; 
+  margin-top: 25px;
 }
+
 .export-section {
   display: flex;
   justify-content: center;
@@ -234,7 +235,6 @@ h1 {
   background: #00897b;
 }
 
-/* Import section */
 .import-section {
   display: flex;
   flex-wrap: wrap;
@@ -242,6 +242,7 @@ h1 {
   justify-content: center;
   margin-top: 10px;
 }
+
 .import-section input[type="file"] {
   background: #eee;
   border: none;
@@ -264,7 +265,6 @@ h1 {
   background: #00897b;
 }
 
-/* Estimated finish time display */
 .estimated-finish {
   margin-top: 10px;
   font-size: 14px;
@@ -273,7 +273,6 @@ h1 {
   text-align: center;
 }
 
-/* Simple media query for small screens */
 @media (max-width: 400px) {
   .task-input, .controls, .import-section {
     flex-direction: column;

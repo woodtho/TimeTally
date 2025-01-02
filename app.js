@@ -1,12 +1,12 @@
-// app.js: JavaScript functionality for TimeTally, including dynamic import behavior and additional timer info
+// app.js: JavaScript functionality for TimeTally, including auto-restart at list completion
 
-let tasks = []; // Stores tasks in the form { name, time, remainingTime, editing }
-let currentTaskIndex = 0; // Tracks which task is currently running
-let timerInterval = null; // Holds the interval ID for the countdown
-let importedFileData = null; // Temporarily holds the parsed data from the selected file
+let tasks = []; // Array of { name, time, remainingTime, editing }
+let currentTaskIndex = 0; // Which task is running
+let timerInterval = null; // Interval ID for countdown
+let importedFileData = null; // Holds parsed data from file import
 
-loadTasksFromCookie(); // Loads tasks from cookie on page load
-updateTaskListUI(); // Renders tasks in the UI
+loadTasksFromCookie();
+updateTaskListUI();
 
 function addTask() {
   const taskName = document.getElementById('taskName').value.trim();
@@ -155,7 +155,7 @@ function updateTaskListUI() {
 
   updateProgressBar();
   updateEstimatedFinishTime();
-  updateTimerInfo(); // Shows the timer text and percent
+  updateTimerInfo();
 }
 
 function startTimer() {
@@ -164,7 +164,17 @@ function startTimer() {
 }
 
 function runCurrentTask() {
-  if (currentTaskIndex >= tasks.length) return;
+  /* 
+     If the user has finished all tasks (currentTaskIndex >= tasks.length), 
+     then reset them and restart from the first task.
+  */
+  if (currentTaskIndex >= tasks.length) {
+    currentTaskIndex = 0;
+    tasks.forEach(t => t.remainingTime = t.time);
+    updateTaskListUI();
+    return;
+  }
+
   timerInterval = setInterval(() => {
     tasks[currentTaskIndex].remainingTime--;
     updateTaskListUI();
@@ -174,7 +184,7 @@ function runCurrentTask() {
       timerInterval = null;
       playSound();
       currentTaskIndex++;
-      runCurrentTask();
+      runCurrentTask(); 
     }
   }, 1000);
 }
@@ -232,7 +242,6 @@ function onFileLoaded(event) {
       };
     });
 
-    // Show two buttons to match the app's general style
     const importSection = document.getElementById('importSection');
     importSection.innerHTML = `
       <button class="btn-start" onclick="importData('add')">
@@ -258,7 +267,6 @@ function importData(mode) {
   updateTaskListUI();
   importedFileData = null;
 
-  // Reset the import section
   const importSection = document.getElementById('importSection');
   importSection.innerHTML = `
     <input type="file" id="importFile" accept=".xml" onchange="onFileLoaded(event)" />
@@ -293,21 +301,6 @@ function updateProgressBar() {
   progressBar.style.width = (fraction * 100).toFixed(2) + '%';
 }
 
-function updateEstimatedFinishTime() {
-  const estFinishElem = document.getElementById('estimatedFinishTime');
-  let totalSecLeft = 0;
-  for (let i = currentTaskIndex; i < tasks.length; i++) {
-    totalSecLeft += tasks[i].remainingTime;
-  }
-  if (totalSecLeft <= 0) {
-    estFinishElem.textContent = 'All tasks completed or no tasks available.';
-    return;
-  }
-  const now = new Date().getTime();
-  const finish = new Date(now + totalSecLeft * 1000);
-  estFinishElem.textContent = 'Estimated finish: ' + finish.toLocaleString();
-}
-
 function updateTimerInfo() {
   const timerText = document.getElementById('timerText');
   const timerPercent = document.getElementById('timerPercent');
@@ -322,9 +315,23 @@ function updateTimerInfo() {
   const fraction = (currentTask.time - currentTask.remainingTime) / currentTask.time;
   const percentage = (fraction * 100).toFixed(2) + '%';
 
-  // Shows the task duration and time left
   timerText.textContent = `Current: ${currentTask.name} — ${formatTime(currentTask.time)} total, ${formatTime(currentTask.remainingTime)} left`;
   timerPercent.textContent = `Progress: ${percentage}`;
+}
+
+function updateEstimatedFinishTime() {
+  const estFinishElem = document.getElementById('estimatedFinishTime');
+  let totalSecLeft = 0;
+  for (let i = currentTaskIndex; i < tasks.length; i++) {
+    totalSecLeft += tasks[i].remainingTime;
+  }
+  if (totalSecLeft <= 0) {
+    estFinishElem.textContent = 'All tasks completed or no tasks available.';
+    return;
+  }
+  const now = new Date().getTime();
+  const finish = new Date(now + totalSecLeft * 1000);
+  estFinishElem.textContent = 'Estimated finish: ' + finish.toLocaleString();
 }
 
 function playSound() {
