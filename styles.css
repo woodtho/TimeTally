@@ -1,13 +1,14 @@
-/* styles.css: Custom styling for TimeTally */
+/* styles.css: Styling for tabs-based lists with drag-and-drop, plus integrated rename/delete in one edit button. */
 
-html, body {
+/* Basic page/container styling */
+html,
+body {
   margin: 0;
   padding: 0;
   font-family: Arial, sans-serif;
   background: #f0f2f5;
   color: #333;
 }
-
 .container {
   width: 90%;
   max-width: 600px;
@@ -17,20 +18,155 @@ html, body {
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
-
 h1 {
   margin-top: 0;
   margin-bottom: 20px;
   text-align: center;
 }
 
+/* Tabs container */
+
+/* new: boxes around relevant sections */
+.section-box {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px;
+  margin-bottom: 15px;
+  background: #fafafa;
+}
+
+/* Moved estimated finish time to its own area */
+.estimated-finish {
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  margin: 4px 0;
+  color: #555;
+}
+
+/* Tabs container from prior code */
+.tabs-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  gap: 5px;
+}
+
+/* Each tab is draggable */
+.tab {
+  display: flex;
+  align-items: center;
+  background: #2196f3;
+  color: #fff;
+  padding: 8px 10px;
+  border-radius: 4px;
+  cursor: move; /* shows that it's draggable */
+  position: relative;
+  user-select: none;
+}
+.tab.active {
+  background: #1976d2; /* Active tab is darker */
+}
+/* Dragging style hint */
+.tab.dragging {
+  opacity: 0.5;
+  border: 2px dashed #ccc;
+}
+/* Tab text */
+.tab-name {
+  margin-right: 6px;
+}
+/* The single "edit" icon that toggles rename & delete UI */
+.tab-edit-icon {
+  margin-left: 6px;
+  cursor: pointer;
+  color: #fff;
+}
+/* The rename/delete UI that appears inside the tab, hidden by default */
+.tab-edit-controls {
+  display: none;
+  gap: 5px;
+  align-items: center;
+}
+/* Input for renaming the list */
+.tab-edit-input {
+  min-width: 100px;
+  padding: 3px 5px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+.tab-edit-btn,
+.tab-delete-btn {
+  background: #4caf50;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  padding: 4px 6px;
+  cursor: pointer;
+}
+.tab-edit-btn:hover {
+  background: #43a047;
+}
+.tab-delete-btn {
+  background: #f44336;
+}
+.tab-delete-btn:hover {
+  background: #e53935;
+}
+
+/* The "Add new list" button */
+.tab-add-btn {
+  background: #4caf50;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.tab-add-btn:hover {
+  background: #43a047;
+}
+
+/* Fields for creating a new list */
+#listCreateFields {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+#createListName {
+  min-width: 120px;
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+#listCreateFields button {
+  background: #4caf50;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+#listCreateFields button:hover {
+  background: #43a047;
+}
+.btn-cancel {
+  background: #f44336 !important;
+}
+.btn-cancel:hover {
+  background: #e53935 !important;
+}
+
+/* Task input fields */
 .task-input {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   margin-bottom: 20px;
 }
-
 .task-input input,
 .task-input select {
   flex: 1;
@@ -40,7 +176,6 @@ h1 {
   border: 1px solid #ccc;
   border-radius: 4px;
 }
-
 .task-input button {
   background: #4caf50;
   color: #fff;
@@ -49,17 +184,18 @@ h1 {
   padding: 6px 12px;
   cursor: pointer;
   font-weight: bold;
+  font-size: 14px;
 }
 .task-input button:hover {
   background: #43a047;
 }
 
+/* Task list styling */
 #taskList {
   list-style: none;
   padding: 0;
   margin: 0;
 }
-
 .task-item {
   display: flex;
   align-items: center;
@@ -67,28 +203,23 @@ h1 {
   padding: 8px;
   border-bottom: 1px solid #eee;
 }
-
 .task-details {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
-
 .task-name {
   font-weight: bold;
   margin-bottom: 2px;
 }
-
 .task-time,
 .edit-fields {
   font-size: 14px;
 }
-
 .task-actions {
   display: flex;
   gap: 5px;
 }
-
 .task-actions button {
   background: #2196f3;
   color: #fff;
@@ -101,7 +232,7 @@ h1 {
 .task-actions button:hover {
   background: #1976d2;
 }
-
+/* Edit fields for tasks */
 .edit-fields input {
   margin-right: 5px;
   padding: 4px;
@@ -131,7 +262,6 @@ h1 {
   background: #fafafa;
   margin-bottom: 15px;
 }
-
 .progress-container {
   background: #ddd;
   border-radius: 4px;
@@ -145,7 +275,6 @@ h1 {
   height: 100%;
   transition: width 0.3s ease;
 }
-
 .timer-info {
   display: flex;
   align-items: center;
@@ -153,18 +282,19 @@ h1 {
   font-size: 14px;
   color: #555;
 }
-.timer-text, .timer-percent {
+.timer-text,
+.timer-percent {
   margin: 4px 0;
 }
 
+/* Timer controls */
 .controls {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-top: 15px;
   justify-content: center;
+  margin-bottom: 10px;
 }
-
 .controls button {
   border: none;
   border-radius: 4px;
@@ -177,7 +307,6 @@ h1 {
   align-items: center;
   gap: 5px;
 }
-
 .btn-start {
   background: #4caf50;
 }
@@ -209,10 +338,10 @@ h1 {
   background: #e53935;
 }
 
+/* Import/Export */
 .import-export {
   margin-top: 25px;
 }
-
 .export-section {
   display: flex;
   justify-content: center;
@@ -227,14 +356,10 @@ h1 {
   cursor: pointer;
   font-size: 14px;
   font-weight: bold;
-  display: flex;
-  align-items: center;
-  gap: 5px;
 }
 .btn-export:hover {
   background: #00897b;
 }
-
 .import-section {
   display: flex;
   flex-wrap: wrap;
@@ -242,7 +367,6 @@ h1 {
   justify-content: center;
   margin-top: 10px;
 }
-
 .import-section input[type="file"] {
   background: #eee;
   border: none;
@@ -252,6 +376,25 @@ h1 {
   color: #555;
   font-size: 14px;
 }
+
+#importFileBttn {
+  --fa-font-brands: normal 400 1em/1 "Font Awesome 6 Brands";
+  --fa-font-regular: normal 400 1em/1 "Font Awesome 6 Free";
+  --fa-font-solid: normal 900 1em/1 "Font Awesome 6 Free";
+  background: #009688;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+#importFileBttn:hover {
+  background: #00897b; /* Darker green on hover */
+}
+
 .import-section input[type="file"]::-webkit-file-upload-button {
   background: #009688;
   color: #fff;
@@ -273,12 +416,25 @@ h1 {
   text-align: center;
 }
 
+/* Responsive adjustments */
 @media (max-width: 400px) {
-  .task-input, .controls, .import-section {
+  .tabs-container {
+    flex-wrap: wrap;
+  }
+  .task-input,
+  .controls,
+  .import-section {
     flex-direction: column;
   }
   .task-actions {
     flex-direction: column;
     align-items: flex-start;
   }
+}
+
+.task-input {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0; /* Was margin-bottom: 20px; replaced by .section-box spacing */
 }

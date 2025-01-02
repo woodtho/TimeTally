@@ -1,89 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TimeTally</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
-  <div class="container">
-    <h1>TimeTally</h1>
-
-    <!-- Task input: name, time, and unit -->
-    <div class="task-input">
-      <input type="text" id="taskName" placeholder="Task Name" />
-      <input type="number" id="taskTime" placeholder="Time" />
-      <select id="timeUnit">
-        <option value="seconds">Seconds</option>
-        <option value="minutes">Minutes</option>
-        <option value="hours">Hours</option>
-      </select>
-      <button onclick="addTask()">
-        <i class="fas fa-plus"></i>
-        Add
-      </button>
-    </div>
-
-    <!-- List of tasks -->
-    <ul id="taskList"></ul>
-
-    <!-- Distinct section for the timer info -->
-    <div class="timer-section">
-      <div class="progress-container">
-        <div class="progress-bar" id="progressBar" style="width:0%"></div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TimeTally</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>TimeTally</h1>
+      <!-- Tabs for each list -->
+      <div class="tabs-container" id="tabsContainer">
+        <!-- Button for creating a new list (will be appended by JS logic) -->
       </div>
-      <div class="timer-info">
-        <div id="timerText" class="timer-text"></div>
-        <div id="timerPercent" class="timer-percent"></div>
-      </div>
-    </div>
-
-    <!-- Controls for managing timers -->
-    <div class="controls">
-      <button class="btn-start" onclick="startTimer()">
-        <i class="fas fa-play"></i>
-        Start
-      </button>
-      <button class="btn-skip" onclick="skipTask()">
-        <i class="fas fa-forward"></i>
-        Skip
-      </button>
-      <button class="btn-complete" onclick="completeEarly()">
-        <i class="fas fa-check"></i>
-        Complete
-      </button>
-      <button class="btn-pause" onclick="pauseTimer()">
-        <i class="fas fa-pause"></i>
-        Pause
-      </button>
-      <button class="btn-red" onclick="restartTimer()">
-        <i class="fas fa-undo-alt"></i>
-        Restart
-      </button>
-    </div>
-
-    <!-- Import/Export section -->
-    <div class="import-export">
-      <div class="export-section">
-        <button class="btn-export" onclick="exportTasksToXML()">
-          <i class="fas fa-file-export"></i>
-          Export XML
+      <!-- Fields for creating a new list -->
+      <div class="list-edit-fields" id="listCreateFields" style="display: none;">
+        <input type="text" id="createListName" placeholder="New list name" />
+        <button onclick="saveNewList()">
+          <i class="fas fa-save"></i>
+        </button>
+        <button class="btn-cancel" onclick="cancelListCreate()">
+          <i class="fas fa-times"></i>
         </button>
       </div>
-
-      <div class="import-section" id="importSection">
-        <input type="file" id="importFile" accept=".xml" onchange="onFileLoaded(event)" />
+      <!-- Section for showing the estimated finish time (moved above task list) -->
+      <div class="section-box">
+        <div class="estimated-finish" id="estimatedFinishTime"></div>
       </div>
+      <!-- Task creation area in its own box -->
+      <div class="section-box">
+        <div class="task-input">
+          <input type="text" id="taskName" placeholder="Task Name" />
+          <input type="number" id="taskTime" placeholder="Time" />
+          <select id="timeUnit">
+            <option value="seconds">Seconds</option>
+            <option value="minutes">Minutes</option>
+            <option value="hours">Hours</option>
+          </select>
+          <button onclick="addTask()" title="Add Task">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+      </div>
+      <!-- List of tasks -->
+      <ul id="taskList"></ul>
+      <!-- Timer info (progress bar + textual info) -->
+      <div class="timer-section">
+        <div class="progress-container">
+          <div class="progress-bar" id="progressBar" style="width:0%"></div>
+        </div>
+        <div class="timer-info">
+          <div id="timerText" class="timer-text"></div>
+          <div id="timerPercent" class="timer-percent"></div>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn-start" onclick="startTimer()" title="Start Timer">
+          <i class="fas fa-play"></i>
+        </button>
+        <button class="btn-skip" onclick="skipTask()" title="Skip Current Task">
+          <i class="fas fa-forward"></i>
+        </button>
+        <button class="btn-complete" onclick="completeEarly()" title="Complete Early">
+          <i class="fas fa-check"></i>
+        </button>
+        <button class="btn-pause" onclick="pauseTimer()" title="Pause Timer">
+          <i class="fas fa-pause"></i>
+        </button>
+        <button class="btn-red" onclick="restartTimer()" title="Restart All Tasks">
+          <i class="fas fa-undo-alt"></i>
+        </button>
+      </div>
+      <div class="import-export">
+        <div class="export-section">
+          <button class="btn-export" onclick="exportTasksToXML()" title="Export Tasks">
+            <i class="fas fa-file-export"></i> Export Tasks </button>
+        </div>
+        <div class="import-section" id="importSection">
+          <button id="importFileBttn" onclick="document.getElementById('importFile').click();">
+            <i class="fas fa-file-import"></i> Import Tasks </button>
+          <input type="file" id="importFile" accept=".xml" onchange="onFileLoaded(event)" style="display:none !important;" />
+        </div>
+      </div>
+      <!-- Audio for task completion -->
+      <audio id="notificationSound" src="https://www.soundjay.com/buttons/beep-07a.mp3" preload="auto"></audio>
     </div>
-
-    <div class="estimated-finish" id="estimatedFinishTime"></div>
-
-    <!-- Audio for task completion -->
-    <audio id="notificationSound" src="https://www.soundjay.com/buttons/beep-07a.mp3" preload="auto"></audio>
-  </div>
-
-  <script src="app.js"></script>
-</body>
+    <script src="app.js"></script>
+  </body>
 </html>
