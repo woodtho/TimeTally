@@ -1,28 +1,24 @@
-// app.js: JavaScript functionality for the Task Timer App (Enhanced)
+// app.js: JavaScript functionality for TimeTally, including dynamic import behavior and additional timer info
 
 let tasks = []; // Stores tasks in the form { name, time, remainingTime, editing }
 let currentTaskIndex = 0; // Tracks which task is currently running
-let timerInterval = null; // Holds the interval for the countdown
+let timerInterval = null; // Holds the interval ID for the countdown
+let importedFileData = null; // Temporarily holds the parsed data from the selected file
 
 loadTasksFromCookie(); // Loads tasks from cookie on page load
 updateTaskListUI(); // Renders tasks in the UI
 
 function addTask() {
-  // Reads user inputs for name, time, and time unit
   const taskName = document.getElementById('taskName').value.trim();
   const taskTime = parseInt(document.getElementById('taskTime').value, 10);
   const timeUnit = document.getElementById('timeUnit').value;
-
-  // Exits if input is invalid
   if (!taskName || isNaN(taskTime) || taskTime <= 0) return;
 
-  // Converts user-input to seconds
   let timeInSeconds = 0;
   if (timeUnit === 'seconds') timeInSeconds = taskTime;
   if (timeUnit === 'minutes') timeInSeconds = taskTime * 60;
   if (timeUnit === 'hours')   timeInSeconds = taskTime * 3600;
 
-  // Adds new task
   tasks.push({
     name: taskName,
     time: timeInSeconds,
@@ -30,7 +26,6 @@ function addTask() {
     editing: false
   });
 
-  // Clears input fields and updates UI
   document.getElementById('taskName').value = '';
   document.getElementById('taskTime').value = '';
   updateTaskListUI();
@@ -38,7 +33,6 @@ function addTask() {
 }
 
 function updateTaskListUI() {
-  // Renders tasks in the UI
   const taskList = document.getElementById('taskList');
   taskList.innerHTML = '';
 
@@ -46,12 +40,10 @@ function updateTaskListUI() {
     const li = document.createElement('li');
     li.className = 'task-item';
 
-    // Container for task name/time or editing fields
     const taskDetails = document.createElement('div');
     taskDetails.className = 'task-details';
 
     if (!task.editing) {
-      // Static display of task name and time if not editing
       const nameEl = document.createElement('div');
       nameEl.className = 'task-name';
       nameEl.textContent = (index === currentTaskIndex ? '[Current] ' : '') + task.name;
@@ -63,7 +55,6 @@ function updateTaskListUI() {
       taskDetails.appendChild(nameEl);
       taskDetails.appendChild(timeEl);
     } else {
-      // If task is in editing mode, create input fields for name/time
       const editFields = document.createElement('div');
       editFields.className = 'edit-fields';
 
@@ -74,9 +65,8 @@ function updateTaskListUI() {
       timeInput.type = 'number';
       timeInput.value = task.time;
 
-      // Updates the task data when user saves
       const saveButton = document.createElement('button');
-      saveButton.textContent = 'Save';
+      saveButton.innerHTML = '<i class="fas fa-save"></i> Save';
       saveButton.onclick = () => {
         task.name = nameInput.value;
         const newTime = parseInt(timeInput.value, 10);
@@ -88,7 +78,7 @@ function updateTaskListUI() {
       };
 
       const cancelButton = document.createElement('button');
-      cancelButton.textContent = 'Cancel';
+      cancelButton.innerHTML = '<i class="fas fa-times"></i> Cancel';
       cancelButton.onclick = () => {
         task.editing = false;
         updateTaskListUI();
@@ -103,14 +93,12 @@ function updateTaskListUI() {
 
     li.appendChild(taskDetails);
 
-    // Controls for moving or editing each task
     const taskActions = document.createElement('div');
     taskActions.className = 'task-actions';
 
-    // Move Up button
     if (index > 0) {
       const upButton = document.createElement('button');
-      upButton.textContent = '↑';
+      upButton.innerHTML = '<i class="fas fa-arrow-up"></i>';
       upButton.onclick = () => {
         const temp = tasks[index];
         tasks[index] = tasks[index - 1];
@@ -123,10 +111,9 @@ function updateTaskListUI() {
       taskActions.appendChild(upButton);
     }
 
-    // Move Down button
     if (index < tasks.length - 1) {
       const downButton = document.createElement('button');
-      downButton.textContent = '↓';
+      downButton.innerHTML = '<i class="fas fa-arrow-down"></i>';
       downButton.onclick = () => {
         const temp = tasks[index];
         tasks[index] = tasks[index + 1];
@@ -139,10 +126,9 @@ function updateTaskListUI() {
       taskActions.appendChild(downButton);
     }
 
-    // Edit button (if not already editing)
     if (!task.editing) {
       const editButton = document.createElement('button');
-      editButton.textContent = 'Edit';
+      editButton.innerHTML = '<i class="fas fa-edit"></i>';
       editButton.onclick = () => {
         task.editing = true;
         updateTaskListUI();
@@ -150,37 +136,35 @@ function updateTaskListUI() {
       taskActions.appendChild(editButton);
     }
 
-    // Remove button
     const removeButton = document.createElement('button');
-    removeButton.textContent = 'X';
+    removeButton.innerHTML = '<i class="fas fa-trash"></i>';
+    removeButton.style.background = '#f44336';
+    removeButton.onmouseover = () => { removeButton.style.background = '#e53935'; };
+    removeButton.onmouseout = () => { removeButton.style.background = '#f44336'; };
     removeButton.onclick = () => {
       tasks.splice(index, 1);
       if (currentTaskIndex >= tasks.length) currentTaskIndex = tasks.length - 1;
       updateTaskListUI();
       storeTasksInCookie();
     };
-    taskActions.appendChild(removeButton);
 
+    taskActions.appendChild(removeButton);
     li.appendChild(taskActions);
     taskList.appendChild(li);
   });
 
-  // Updates the progress bar width based on the current task’s time
   updateProgressBar();
-  // Updates the estimated finish time label
   updateEstimatedFinishTime();
+  updateTimerInfo(); // Shows the timer text and percent
 }
 
 function startTimer() {
-  // Prevents starting a new timer if one is already running or if there are no tasks
   if (!tasks.length || timerInterval) return;
   runCurrentTask();
 }
 
 function runCurrentTask() {
-  if (currentTaskIndex >= tasks.length) return; // No tasks left
-  alertNewTask(currentTaskIndex); // Alerts user that a new task is starting
-
+  if (currentTaskIndex >= tasks.length) return;
   timerInterval = setInterval(() => {
     tasks[currentTaskIndex].remainingTime--;
     updateTaskListUI();
@@ -221,7 +205,7 @@ function pauseTimer() {
   }
 }
 
-function exitTimer() {
+function restartTimer() {
   clearInterval(timerInterval);
   timerInterval = null;
   currentTaskIndex = 0;
@@ -229,21 +213,76 @@ function exitTimer() {
   updateTaskListUI();
 }
 
-function playSound() {
-  const sound = document.getElementById('notificationSound');
-  sound.currentTime = 0;
-  sound.play();
+function onFileLoaded(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(e.target.result, 'application/xml');
+    importedFileData = Array.from(xmlDoc.getElementsByTagName('Task')).map(tNode => {
+      const nameNode = tNode.getElementsByTagName('Name')[0];
+      const timeNode = tNode.getElementsByTagName('Time')[0];
+      const parsedTime = timeNode ? parseInt(timeNode.textContent, 10) : 0;
+      return {
+        name: nameNode ? nameNode.textContent : 'Unnamed',
+        time: parsedTime,
+        remainingTime: parsedTime,
+        editing: false
+      };
+    });
+
+    // Show two buttons to match the app's general style
+    const importSection = document.getElementById('importSection');
+    importSection.innerHTML = `
+      <button class="btn-start" onclick="importData('add')">
+        <i class="fas fa-plus"></i> Add
+      </button>
+      <button class="btn-red" onclick="importData('replace')">
+        <i class="fas fa-exchange-alt"></i> Replace
+      </button>
+    `;
+  };
+  reader.readAsText(file);
 }
 
-function alertNewTask(index) {
-  // Alerts user that a new task has started
-  if (index >= 0 && index < tasks.length) {
-    alert('Starting: ' + tasks[index].name);
+function importData(mode) {
+  if (!importedFileData) return;
+  if (mode === 'replace') {
+    tasks = importedFileData;
+    currentTaskIndex = 0;
+  } else {
+    tasks = tasks.concat(importedFileData);
   }
+  storeTasksInCookie();
+  updateTaskListUI();
+  importedFileData = null;
+
+  // Reset the import section
+  const importSection = document.getElementById('importSection');
+  importSection.innerHTML = `
+    <input type="file" id="importFile" accept=".xml" onchange="onFileLoaded(event)" />
+  `;
+  document.getElementById('importFile').value = '';
+}
+
+function exportTasksToXML() {
+  let xmlString = '<?xml version="1.0" encoding="UTF-8"?><Tasks>';
+  tasks.forEach(task => {
+    xmlString += '<Task><Name>' + escapeXML(task.name) + '</Name><Time>' + task.time + '</Time></Task>';
+  });
+  xmlString += '</Tasks>';
+
+  const blob = new Blob([xmlString], { type: 'application/xml' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'tasks.xml';
+  link.click();
+  URL.revokeObjectURL(url);
 }
 
 function updateProgressBar() {
-  // Updates progress bar for the current task
   const progressBar = document.getElementById('progressBar');
   if (!tasks.length || currentTaskIndex >= tasks.length) {
     progressBar.style.width = '0%';
@@ -255,7 +294,6 @@ function updateProgressBar() {
 }
 
 function updateEstimatedFinishTime() {
-  // Calculates remaining time for all tasks and displays the estimated finish time
   const estFinishElem = document.getElementById('estimatedFinishTime');
   let totalSecLeft = 0;
   for (let i = currentTaskIndex; i < tasks.length; i++) {
@@ -270,8 +308,32 @@ function updateEstimatedFinishTime() {
   estFinishElem.textContent = 'Estimated finish: ' + finish.toLocaleString();
 }
 
+function updateTimerInfo() {
+  const timerText = document.getElementById('timerText');
+  const timerPercent = document.getElementById('timerPercent');
+
+  if (currentTaskIndex >= tasks.length) {
+    timerText.textContent = 'No current task.';
+    timerPercent.textContent = '';
+    return;
+  }
+
+  const currentTask = tasks[currentTaskIndex];
+  const fraction = (currentTask.time - currentTask.remainingTime) / currentTask.time;
+  const percentage = (fraction * 100).toFixed(2) + '%';
+
+  // Shows the task duration and time left
+  timerText.textContent = `Current: ${currentTask.name} — ${formatTime(currentTask.time)} total, ${formatTime(currentTask.remainingTime)} left`;
+  timerPercent.textContent = `Progress: ${percentage}`;
+}
+
+function playSound() {
+  const sound = document.getElementById('notificationSound');
+  sound.currentTime = 0;
+  sound.play();
+}
+
 function formatTime(seconds) {
-  // Converts total seconds into an HH:MM:SS style string
   const hrs = Math.floor(seconds / 3600);
   const mins = Math.floor((seconds % 3600) / 60);
   const secs = seconds % 60;
@@ -283,13 +345,11 @@ function formatTime(seconds) {
 }
 
 function storeTasksInCookie() {
-  // Saves tasks array to a cookie in JSON format
   const encodedTasks = encodeURIComponent(JSON.stringify(tasks));
   document.cookie = 'taskList=' + encodedTasks + '; path=/; max-age=31536000';
 }
 
 function loadTasksFromCookie() {
-  // Retrieves cookie named 'taskList' and parses JSON
   const allCookies = document.cookie.split(';');
   const taskCookie = allCookies.find(c => c.trim().startsWith('taskList='));
   if (!taskCookie) return;
@@ -297,52 +357,7 @@ function loadTasksFromCookie() {
   tasks = JSON.parse(jsonStr) || [];
 }
 
-function exportTasksToXML() {
-  // Constructs an XML structure for current tasks
-  let xmlString = '<?xml version="1.0" encoding="UTF-8"?><Tasks>';
-  tasks.forEach(task => {
-    xmlString += '<Task><Name>' + escapeXML(task.name) + '</Name><Time>' + task.time + '</Time></Task>';
-  });
-  xmlString += '</Tasks>';
-
-  // Creates a downloadable link for the XML
-  const blob = new Blob([xmlString], { type: 'application/xml' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = 'tasks.xml';
-  link.click();
-  URL.revokeObjectURL(url);
-}
-
-function importTasksFromXML(event) {
-  // Reads the selected XML file and merges tasks
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(e.target.result, 'application/xml');
-    const importedTasks = Array.from(xmlDoc.getElementsByTagName('Task')).map(tNode => {
-      const nameNode = tNode.getElementsByTagName('Name')[0];
-      const timeNode = tNode.getElementsByTagName('Time')[0];
-      const parsedTime = timeNode ? parseInt(timeNode.textContent, 10) : 0;
-      return {
-        name: nameNode ? nameNode.textContent : 'Unnamed',
-        time: parsedTime,
-        remainingTime: parsedTime,
-        editing: false
-      };
-    });
-    tasks = tasks.concat(importedTasks);
-    storeTasksInCookie();
-    updateTaskListUI();
-  };
-  reader.readAsText(file);
-}
-
 function escapeXML(str) {
-  // Escapes special characters for valid XML
   return str.replace(/[<>&'"]/g, c => {
     switch (c) {
       case '<': return '&lt;';

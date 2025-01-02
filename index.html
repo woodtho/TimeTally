@@ -1,14 +1,17 @@
-<!-- index.html: Main HTML structure -->
+<!-- index.html: Main HTML structure for TimeTally -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <!-- Ensures mobile responsiveness -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TimeTally</title>
+  <!-- Link to Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <!-- Link to external CSS -->
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- Container for the entire app -->
   <div class="container">
     <h1>TimeTally</h1>
 
@@ -21,37 +24,73 @@
         <option value="minutes">Minutes</option>
         <option value="hours">Hours</option>
       </select>
-      <button onclick="addTask()">Add Task</button>
+      <button onclick="addTask()">
+        <i class="fas fa-plus"></i>
+        Add
+      </button>
     </div>
 
     <!-- List of tasks -->
     <ul id="taskList"></ul>
 
-    <!-- Progress bar for the current task -->
-    <div class="progress-container">
-      <div class="progress-bar" id="progressBar" style="width:0%"></div>
+    <!-- A visually distinct section for the timer info -->
+    <div class="timer-section">
+      <!-- Progress bar for the current task -->
+      <div class="progress-container">
+        <div class="progress-bar" id="progressBar" style="width:0%"></div>
+      </div>
+      <!-- Additional textual info about the current timer -->
+      <div class="timer-info">
+        <div id="timerText" class="timer-text"></div>
+        <div id="timerPercent" class="timer-percent"></div>
+      </div>
     </div>
 
     <!-- Controls for managing timers -->
     <div class="controls">
-      <button onclick="startTimer()">Start</button>
-      <button onclick="skipTask()">Skip</button>
-      <button onclick="completeEarly()">Complete Early</button>
-      <button onclick="pauseTimer()">Pause</button>
-      <button onclick="exitTimer()">Exit</button>
+      <button class="btn-start" onclick="startTimer()">
+        <i class="fas fa-play"></i>
+        Start
+      </button>
+      <button class="btn-skip" onclick="skipTask()">
+        <i class="fas fa-forward"></i>
+        Skip
+      </button>
+      <button class="btn-complete" onclick="completeEarly()">
+        <i class="fas fa-check"></i>
+        Complete
+      </button>
+      <button class="btn-pause" onclick="pauseTimer()">
+        <i class="fas fa-pause"></i>
+        Pause
+      </button>
+      <button class="btn-red" onclick="restartTimer()">
+        <i class="fas fa-undo-alt"></i>
+        Restart
+      </button>
     </div>
 
-    <!-- Import/Export section -->
+    <!-- Import/Export section with separate areas for exporting and importing -->
     <div class="import-export">
-      <button onclick="exportTasksToXML()">Export XML</button>
-      <input type="file" id="importFile" accept=".xml" onchange="importTasksFromXML(event)" />
+      <!-- Extra spacing above the export button -->
+      <div class="export-section">
+        <button class="btn-export" onclick="exportTasksToXML()">
+          <i class="fas fa-file-export"></i>
+          Export XML
+        </button>
+      </div>
+
+      <!-- Import section starts with just the file input -->
+      <div class="import-section" id="importSection">
+        <input type="file" id="importFile" accept=".xml" onchange="onFileLoaded(event)" />
+      </div>
     </div>
 
     <!-- Estimated finish time readout -->
     <div class="estimated-finish" id="estimatedFinishTime"></div>
 
-    <!-- Audio element for playing notifications -->
-    <audio id="notificationSound" src="https://www.soundjay.com/buttons/beep-07.mp3" preload="auto"></audio>
+    <!-- Audio element for playing notifications when a task finishes -->
+    <audio id="notificationSound" src="https://www.soundjay.com/buttons/button-1.mp3" preload="auto"></audio>
   </div>
 
   <!-- Reference the JavaScript file -->
