@@ -4,12 +4,52 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TimeTally</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <div class="container">
       <h1>TimeTally</h1>
+      <!-- Per-list options at the top -->
+      <div class="options-menu" id="optionsMenu">
+        <h3>List Options</h3>
+        <div class="option-row">
+          <label for="beepCheckbox">Enable Beep?</label>
+          <input type="checkbox" id="beepCheckbox" onchange="onBeepCheckboxChange()" />
+        </div>
+        <div class="option-row">
+          <label for="ttsCheckbox">Enable TTS?</label>
+          <input type="checkbox" id="ttsCheckbox" onchange="onTTSCheckboxChange()" />
+        </div>
+        <div class="option-row">
+          <label for="voiceSelect">Voice:</label>
+          <select id="voiceSelect" onchange="onVoiceSelectChange()">
+            <!-- Populated by JS -->
+          </select>
+        </div>
+        <div class="option-row">
+          <label for="ttsModeSelect">TTS Says:</label>
+          <select id="ttsModeSelect" onchange="onTTSModeChange()">
+            <option value="taskNamePlusDurationStart">Start: Task name + duration</option>
+            <option value="taskNameStart">Start: Task name only</option>
+            <option value="durationStart">Start: Duration only</option>
+            <option value="customCompletion">Completion: Custom message</option>
+            <option value="randomAffirmation">Completion: Random affirmation</option>
+          </select>
+        </div>
+        <div class="option-row" id="customMessageRow" style="display:none;">
+          <label for="ttsCustomMessage">Custom Message:</label>
+          <input
+            type="text"
+            id="ttsCustomMessage"
+            placeholder="e.g. Task completed!"
+            oninput="onCustomMessageChange()"
+          />
+        </div>
+      </div>
       <!-- Tabs for each list -->
       <div class="tabs-container" id="tabsContainer">
         <!-- Button for creating a new list (will be appended by JS logic) -->
@@ -75,16 +115,28 @@
       <div class="import-export">
         <div class="export-section">
           <button class="btn-export" onclick="exportTasksToXML()" title="Export Tasks">
-            <i class="fas fa-file-export"></i> Export Tasks </button>
+            <i class="fas fa-file-export"></i> Export Tasks
+          </button>
         </div>
         <div class="import-section" id="importSection">
           <button id="importFileBttn" onclick="document.getElementById('importFile').click();">
-            <i class="fas fa-file-import"></i> Import Tasks </button>
-          <input type="file" id="importFile" accept=".xml" onchange="onFileLoaded(event)" style="display:none !important;" />
+            <i class="fas fa-file-import"></i> Import Tasks
+          </button>
+          <input
+            type="file"
+            id="importFile"
+            accept=".xml"
+            onchange="onFileLoaded(event)"
+            style="display: none !important;"
+          />
         </div>
       </div>
       <!-- Audio for task completion -->
-      <audio id="notificationSound" src="https://www.soundjay.com/buttons/beep-07a.mp3" preload="auto"></audio>
+      <audio
+        id="notificationSound"
+        src="https://www.soundjay.com/buttons/beep-07a.mp3"
+        preload="auto"
+      ></audio>
     </div>
     <script src="app.js"></script>
   </body>
