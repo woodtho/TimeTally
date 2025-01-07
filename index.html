@@ -9,13 +9,56 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
     />
     <link rel="stylesheet" href="styles.css" />
-    <link rel="manifest" href="manifest.json" />
   </head>
   <body>
     <div class="container">
-      <h1>TimeTally</h1>
-      <!-- Per-list options at the top -->
-      <div class="options-menu" id="optionsMenu">
+      <!-- App Header -->
+      <header>
+        <h1>TimeTally</h1>
+        <div class="header-buttons">
+          <button id="toggleOptionsButton" class="gear-button" onclick="toggleOptionsMenu()" title="Toggle Settings">
+            <i class="fas fa-cog"></i>
+          </button>
+          <button id="toggleHelpButton" class="help-button" onclick="toggleHelpMenu()" title="Help">
+            <i class="fas fa-question-circle"></i>
+          </button>
+        </div>
+      </header>
+       <!-- Collapsible Help Section -->
+      <div class="help-menu" id="helpMenu" style="display: none;">
+        <h3>How to Use TimeTally</h3>
+        <p>
+          Welcome to TimeTally! This app helps you manage time-tracking tasks with multiple lists.
+        </p>
+        <ul>
+          <li><b>Task Management:</b> Add, edit, remove, enable/disable tasks, or reorder them.</li>
+          <li>
+            <b>Enable/Disable Tasks:</b> Use the toggle switch beside each task to include/exclude it from the timer.
+          </li>
+          <li><b>Set Current Task:</b> Click a task to make it the active task.</li>
+          <li>
+            <b>List-Specific Settings:</b> Customize beep, TTS, and voice options for each list independently.
+          </li>
+        </ul>
+        <p>Settings and progress are saved automatically for each list.</p>
+      </div>
+
+      <!-- Tabs for each list -->
+      <div class="tabs-container" id="tabsContainer">
+        <!-- Button for creating a new list (will be appended by JS logic) -->
+      </div>
+      <!-- Fields for creating a new list -->
+      <div class="list-edit-fields" id="listCreateFields" style="display: none;">
+        <input type="text" id="createListName" placeholder="New list name" />
+        <button onclick="saveNewList()">
+          <i class="fas fa-save"></i>
+        </button>
+        <button class="btn-cancel" onclick="cancelListCreate()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+            <!-- Collapsible Options -->
+      <div class="options-menu" id="optionsMenu" style="display: none;">
         <h3>List Options</h3>
         <div class="option-row">
           <label for="beepCheckbox">Enable Beep?</label>
@@ -41,7 +84,7 @@
             <option value="randomAffirmation">Completion: Random affirmation</option>
           </select>
         </div>
-        <div class="option-row" id="customMessageRow" style="display:none;">
+        <div class="option-row" id="customMessageRow" style="display: none;">
           <label for="ttsCustomMessage">Custom Message:</label>
           <input
             type="text"
@@ -51,21 +94,7 @@
           />
         </div>
       </div>
-      <!-- Tabs for each list -->
-      <div class="tabs-container" id="tabsContainer">
-        <!-- Button for creating a new list (will be appended by JS logic) -->
-      </div>
-      <!-- Fields for creating a new list -->
-      <div class="list-edit-fields" id="listCreateFields" style="display: none;">
-        <input type="text" id="createListName" placeholder="New list name" />
-        <button onclick="saveNewList()">
-          <i class="fas fa-save"></i>
-        </button>
-        <button class="btn-cancel" onclick="cancelListCreate()">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      <!-- Section for showing the estimated finish time (moved above task list) -->
+      <!-- Section for showing the estimated finish time -->
       <div class="section-box">
         <div class="estimated-finish" id="estimatedFinishTime"></div>
       </div>
@@ -89,7 +118,7 @@
       <!-- Timer info (progress bar + textual info) -->
       <div class="timer-section">
         <div class="progress-container">
-          <div class="progress-bar" id="progressBar" style="width:0%"></div>
+          <div class="progress-bar" id="progressBar" style="width: 0%"></div>
         </div>
         <div class="timer-info">
           <div id="timerText" class="timer-text"></div>

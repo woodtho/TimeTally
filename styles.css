@@ -1,3 +1,5 @@
+/* Basic styling + new checkboxes for enabling/disabling tasks */
+
 /* Basic page/container styling */
 html,
 body {
@@ -218,23 +220,24 @@ h1 {
   justify-content: space-between;
   padding: 8px;
   border-bottom: 1px solid #eee;
+  cursor: pointer; /* So user can click to set current task */
 }
-.task-details {
-  flex: 1;
+.task-item .task-details {
   display: flex;
   flex-direction: column;
+  flex: 1;
 }
-.task-name {
+.task-item .task-details .task-name {
   font-weight: bold;
   margin-bottom: 2px;
 }
-.task-time,
-.edit-fields {
+.task-item .task-details .task-time {
   font-size: 14px;
 }
 .task-actions {
   display: flex;
   gap: 5px;
+  cursor: default; /* So user can click the controls w/o changing the current task */
 }
 .task-actions button {
   background: #2196f3;
@@ -443,4 +446,150 @@ h1 {
     flex-direction: column;
     align-items: flex-start;
   }
+}
+
+
+/* Header gear button for toggling options */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+/* Header buttons */
+.header-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.gear-button,
+.help-button {
+  background: transparent;
+  border: none;
+  color: #2196f3;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.gear-button:hover,
+.help-button:hover {
+  color: #1976d2;
+}
+
+/* Help Menu */
+.help-menu {
+  display: none;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  background: #fafafa;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.help-menu h3 {
+  margin-top: 0;
+  font-size: 16px;
+  text-align: center;
+}
+
+.help-menu ul {
+  margin: 10px 0;
+  padding-left: 20px;
+}
+
+.help-menu li {
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+
+/* Help Section */
+#helpSection {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px;
+  background: #f9f9f9;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+#helpSection p {
+  margin: 0;
+}
+
+#helpSection ul {
+  margin: 5px 0 0 20px;
+  padding: 0;
+  list-style: disc;
+}
+
+/* Options menu */
+.options-menu {
+  display: none;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  background: #fafafa;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.options-menu h3 {
+  margin-top: 0;
+  font-size: 16px;
+  text-align: center;
+}
+
+/* Toggle switch container */
+.task-actions .enable-checkbox-wrapper {
+  position: relative;
+  width: 40px;
+  height: 20px;
+  display: inline-block;
+}
+
+/* Hide the default checkbox */
+.task-actions .enable-checkbox {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* Custom toggle switch background */
+.task-actions .enable-checkbox-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  border: 1px solid #bbb;
+}
+
+/* Knob inside the toggle switch */
+.task-actions .enable-checkbox-label::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* When checkbox is checked */
+.task-actions .enable-checkbox:checked + .enable-checkbox-label {
+  background-color: #4caf50;
+  border-color: #43a047;
+}
+
+.task-actions .enable-checkbox:checked + .enable-checkbox-label::after {
+  transform: translateX(20px);
 }

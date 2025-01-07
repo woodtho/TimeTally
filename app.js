@@ -1,23 +1,20 @@
 /************************************
-  app.js
-  - Per-list config in listConfigs
-  - Options UI at the top, bound to the current list’s config
-  - If time < 60 seconds, format as "xx seconds"
+ app.js
+ - Click on a task to set currentTaskIndex
+ - Each task has task.enabled = true by default
+ - Add a checkbox to enable/disable tasks
+ - Timer logic skips disabled tasks
 ************************************/
 
-let lists = {};          // { listName: [ {name, time, remainingTime, editing}, ... ] }
-let listOrder = [];      // Tab order
+let lists = {};
+let listOrder = [];
 let currentList = 'default';
 let currentTaskIndex = 0;
 let timerInterval = null;
 let importedFileData = null;
 let isListCreating = false;
 
-// The per-list config is stored in listConfigs
-// e.g. listConfigs[listName] = { beepEnabled, ttsEnabled, selectedVoiceName, ttsMode, ttsCustomMessage }
-let listConfigs = {}; // { [listName]: {...config...} }
-
-// Default TTS config
+let listConfigs = {}; // per-list config (beep, TTS, voice, etc.)
 const DEFAULT_CONFIG = {
   beepEnabled: true,
   ttsEnabled: false,
@@ -26,7 +23,6 @@ const DEFAULT_CONFIG = {
   ttsCustomMessage: 'Task completed!'
 };
 
-// Affirmations array (used if ttsMode = randomAffirmation)
 const AFFIRMATIONS = [
   "Great job!",
   "Well done!",
@@ -35,21 +31,15 @@ const AFFIRMATIONS = [
   "Nice work!"
 ];
 
-// Keep a global array of voices
 let availableVoices = [];
 
-/* Called on page load to restore from cookie and build UI. */
 function initApp() {
   loadFromCookie();
-
-  // Create default if no lists
   if (Object.keys(lists).length === 0) {
     lists['default'] = [];
     listOrder.push('default');
     listConfigs['default'] = { ...DEFAULT_CONFIG };
   }
-
-  // If currentList doesn't exist, pick first
   if (!lists[currentList]) {
     if (listOrder.length > 0) {
       currentList = listOrder[0];
@@ -60,20 +50,18 @@ function initApp() {
       currentList = 'default';
     }
   }
-
   buildTabs();
   updateTaskListUI();
 
-  // Populate voices
+  // Voice population
   populateVoiceList();
   if (speechSynthesis.onvoiceschanged !== undefined) {
     speechSynthesis.onvoiceschanged = populateVoiceList;
   }
 
-  // On first load, set the UI fields for the current list
+  // Setup checkboxes, selects, etc. for the current list
   updateOptionsUI();
 
-  // Update the estimated finish time periodically
   setInterval(updateEstimatedFinishTime, 5000);
 }
 
@@ -90,7 +78,6 @@ function populateVoiceList() {
     voiceSelect.appendChild(option);
   });
 
-  // If user’s selectedVoice is valid, set it; else pick first
   const config = getConfig(currentList);
   if (config.selectedVoiceName && availableVoices.some((v) => v.name === config.selectedVoiceName)) {
     voiceSelect.value = config.selectedVoiceName;
@@ -106,7 +93,6 @@ function buildTabs() {
   const tabsContainer = document.getElementById('tabsContainer');
   tabsContainer.innerHTML = '';
 
-  // "Add new list" button
   const addBtn = document.createElement('button');
   addBtn.className = 'tab-add-btn';
   addBtn.innerHTML = '<i class="fas fa-plus"></i>';
@@ -222,7 +208,6 @@ function saveTabEdit(e, tab, oldName, renameInput) {
     return; // already exists
   }
   if (newName !== oldName) {
-    // rename list in 'lists' and 'listOrder'
     lists[newName] = lists[oldName];
     delete lists[oldName];
     const idx = listOrder.indexOf(oldName);
@@ -232,7 +217,7 @@ function saveTabEdit(e, tab, oldName, renameInput) {
     if (currentList === oldName) {
       currentList = newName;
     }
-    // Also rename in listConfigs
+    // rename config
     listConfigs[newName] = listConfigs[oldName];
     delete listConfigs[oldName];
   }
@@ -262,7 +247,7 @@ function deleteTab(e, listName) {
   updateTaskListUI();
 }
 
-/* Switch current list => update everything including top options UI */
+/* Switch current list */
 function setCurrentList(listName) {
   currentList = listName;
   buildTabs();
@@ -307,7 +292,6 @@ function updateOptionsUI() {
   document.getElementById('beepCheckbox').checked = config.beepEnabled;
   document.getElementById('ttsCheckbox').checked = config.ttsEnabled;
 
-  // voiceSelect: set value if voice is valid
   const voiceEl = document.getElementById('voiceSelect');
   if (config.selectedVoiceName && availableVoices.some(v => v.name === config.selectedVoiceName)) {
     voiceEl.value = config.selectedVoiceName;
@@ -319,7 +303,8 @@ function updateOptionsUI() {
   document.getElementById('ttsModeSelect').value = config.ttsMode;
   document.getElementById('ttsCustomMessage').value = config.ttsCustomMessage;
   toggleCustomMessageRow(config.ttsMode);
-  storeInCookie(); // ensure we update cookie if needed
+
+  storeInCookie();
 }
 
 function onBeepCheckboxChange() {
@@ -349,13 +334,11 @@ function onCustomMessageChange() {
   storeInCookie();
 }
 
-/* Show/hide the custom message input if ttsMode === 'customCompletion' */
 function toggleCustomMessageRow(ttsMode) {
   const row = document.getElementById('customMessageRow');
   row.style.display = (ttsMode === 'customCompletion') ? 'flex' : 'none';
 }
 
-/* Helper to get config object for a list, creating default if missing */
 function getConfig(listName) {
   if (!listConfigs[listName]) {
     listConfigs[listName] = { ...DEFAULT_CONFIG };
@@ -382,11 +365,13 @@ function addTask() {
   if (timeUnit === 'minutes') timeInSeconds = taskTime * 60;
   if (timeUnit === 'hours') timeInSeconds = taskTime * 3600;
 
+  // New field: enabled = true
   tasks.push({
     name: taskName,
     time: timeInSeconds,
     remainingTime: timeInSeconds,
-    editing: false
+    editing: false,
+    enabled: true
   });
 
   document.getElementById('taskName').value = '';
@@ -404,22 +389,30 @@ function updateTaskListUI() {
     const li = document.createElement('li');
     li.className = 'task-item';
 
+    // Clicking the list item sets currentTaskIndex, except for certain child elements
+    li.addEventListener('click', (event) => {
+      const ignoreEls = ['BUTTON', 'INPUT', 'LABEL', 'I'];
+      if (ignoreEls.includes(event.target.tagName)) return;
+      currentTaskIndex = index;
+      updateTaskListUI();
+    });
+
     const details = document.createElement('div');
     details.className = 'task-details';
 
     if (!task.editing) {
       const nameEl = document.createElement('div');
       nameEl.className = 'task-name';
-      nameEl.textContent = (index === currentTaskIndex ? '[Current] ' : '') + task.name;
+      nameEl.textContent =
+        (index === currentTaskIndex ? '[Current] ' : '') + task.name;
 
       const timeEl = document.createElement('div');
       timeEl.className = 'task-time';
-      timeEl.textContent = '(' + formatTime(task.remainingTime) + ' remaining)';
+      timeEl.textContent = `(${formatTime(task.remainingTime)} remaining)`;
 
       details.appendChild(nameEl);
       details.appendChild(timeEl);
     } else {
-      // editing
       const editFields = document.createElement('div');
       editFields.className = 'edit-fields';
 
@@ -464,11 +457,35 @@ function updateTaskListUI() {
     const actions = document.createElement('div');
     actions.className = 'task-actions';
 
+    // Enable/disable toggle switch
+    const toggleWrapper = document.createElement('div');
+    toggleWrapper.className = 'enable-checkbox-wrapper';
+
+    const toggleInput = document.createElement('input');
+    toggleInput.type = 'checkbox';
+    toggleInput.id = `taskEnabledCheckbox${index}`;
+    toggleInput.className = 'enable-checkbox';
+    toggleInput.checked = task.enabled;
+    toggleInput.title = 'Enable/disable this task';
+    toggleInput.addEventListener('change', () => {
+      task.enabled = toggleInput.checked;
+      storeInCookie();
+    });
+
+    const toggleLabel = document.createElement('label');
+    toggleLabel.setAttribute('for', `taskEnabledCheckbox${index}`);
+    toggleLabel.className = 'enable-checkbox-label';
+
+    toggleWrapper.appendChild(toggleInput);
+    toggleWrapper.appendChild(toggleLabel);
+    actions.appendChild(toggleWrapper);
+
     // Move up
     if (index > 0) {
       const upBtn = document.createElement('button');
       upBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
-      upBtn.onclick = () => {
+      upBtn.onclick = (e) => {
+        e.stopPropagation();
         [tasks[index], tasks[index - 1]] = [tasks[index - 1], tasks[index]];
         if (currentTaskIndex === index) currentTaskIndex--;
         else if (currentTaskIndex === index - 1) currentTaskIndex++;
@@ -482,7 +499,8 @@ function updateTaskListUI() {
     if (index < tasks.length - 1) {
       const downBtn = document.createElement('button');
       downBtn.innerHTML = '<i class="fas fa-arrow-down"></i>';
-      downBtn.onclick = () => {
+      downBtn.onclick = (e) => {
+        e.stopPropagation();
         [tasks[index], tasks[index + 1]] = [tasks[index + 1], tasks[index]];
         if (currentTaskIndex === index) currentTaskIndex++;
         else if (currentTaskIndex === index + 1) currentTaskIndex--;
@@ -496,7 +514,8 @@ function updateTaskListUI() {
     if (!task.editing) {
       const editBtn = document.createElement('button');
       editBtn.innerHTML = '<i class="fas fa-edit"></i>';
-      editBtn.onclick = () => {
+      editBtn.onclick = (e) => {
+        e.stopPropagation();
         task.editing = true;
         updateTaskListUI();
       };
@@ -507,16 +526,18 @@ function updateTaskListUI() {
     const removeBtn = document.createElement('button');
     removeBtn.innerHTML = '<i class="fas fa-trash"></i>';
     removeBtn.style.background = '#f44336';
-    removeBtn.onmouseover = () => { removeBtn.style.background = '#e53935'; };
-    removeBtn.onmouseout = () => { removeBtn.style.background = '#f44336'; };
-    removeBtn.onclick = () => {
+    removeBtn.onmouseover = () => {
+      removeBtn.style.background = '#e53935';
+    };
+    removeBtn.onmouseout = () => {
+      removeBtn.style.background = '#f44336';
+    };
+    removeBtn.onclick = (e) => {
+      e.stopPropagation();
       tasks.splice(index, 1);
-      if (currentTaskIndex >= tasks.length) {
-        currentTaskIndex = tasks.length - 1;
-      }
+      if (currentTaskIndex >= tasks.length) currentTaskIndex = tasks.length - 1;
       updateTaskListUI();
       storeInCookie();
-      // if last task deleted => restart
       if (tasks.length === 0) {
         restartTimer();
       }
@@ -532,8 +553,9 @@ function updateTaskListUI() {
   updateTimerInfo();
 }
 
+
 /************************
- * Timer / Start / Skip / Etc
+ * Timer / Start / Skip / etc
  ************************/
 function startTimer() {
   const tasks = getCurrentTasks();
@@ -543,16 +565,23 @@ function startTimer() {
 
 function runCurrentTask() {
   const tasks = getCurrentTasks();
-  if (currentTaskIndex >= tasks.length) {
+
+  // Find the next enabled task at or after currentTaskIndex
+  let idx = findNextEnabledTaskIndex(tasks, currentTaskIndex);
+  if (idx === -1) {
+    // No more enabled tasks => reset
     currentTaskIndex = 0;
-    tasks.forEach(t => (t.remainingTime = t.time));
+    tasks.forEach(t => t.remainingTime = t.time);
     updateTaskListUI();
     return;
   }
-  // TTS at start if so configured
+  currentTaskIndex = idx; // set it
+
+  const currentTask = tasks[currentTaskIndex];
   const config = getConfig(currentList);
+
+  // TTS at start
   if (config.ttsEnabled) {
-    const currentTask = tasks[currentTaskIndex];
     if (config.ttsMode === 'taskNamePlusDurationStart') {
       const msg = `Starting: ${currentTask.name}, which is ${formatTime(currentTask.time)}.`;
       speakNotification(msg, config);
@@ -564,24 +593,31 @@ function runCurrentTask() {
   }
 
   timerInterval = setInterval(() => {
-    tasks[currentTaskIndex].remainingTime--;
+    currentTask.remainingTime--;
     updateTaskListUI();
-    if (tasks[currentTaskIndex].remainingTime <= 0) {
+    if (currentTask.remainingTime <= 0) {
       clearInterval(timerInterval);
       timerInterval = null;
-      onTaskComplete();
-      currentTaskIndex++;
-      runCurrentTask();
+      onTaskComplete(config);
+      // Move to next enabled
+      idx = findNextEnabledTaskIndex(tasks, currentTaskIndex + 1);
+      if (idx === -1) {
+        // no next enabled => reset
+        currentTaskIndex = 0;
+        tasks.forEach(t => t.remainingTime = t.time);
+        updateTaskListUI();
+      } else {
+        currentTaskIndex = idx;
+        runCurrentTask();
+      }
     }
   }, 1000);
 }
 
-function onTaskComplete() {
-  const config = getConfig(currentList);
+function onTaskComplete(config) {
   if (config.beepEnabled) {
     playBeep();
   }
-  // TTS if completion-based
   if (config.ttsEnabled) {
     if (config.ttsMode === 'customCompletion') {
       speakNotification(config.ttsCustomMessage, config);
@@ -594,23 +630,39 @@ function onTaskComplete() {
 
 function skipTask() {
   const tasks = getCurrentTasks();
-  if (!tasks.length || currentTaskIndex >= tasks.length) return;
+  if (!tasks.length) return;
   clearInterval(timerInterval);
   timerInterval = null;
-  currentTaskIndex++;
-  updateTaskListUI();
-  runCurrentTask();
+  // find next enabled after currentTaskIndex+1
+  let idx = findNextEnabledTaskIndex(tasks, currentTaskIndex + 1);
+  if (idx === -1) {
+    // none => reset
+    currentTaskIndex = 0;
+    tasks.forEach(t => t.remainingTime = t.time);
+    updateTaskListUI();
+  } else {
+    currentTaskIndex = idx;
+    updateTaskListUI();
+    runCurrentTask();
+  }
 }
 
 function completeEarly() {
   const tasks = getCurrentTasks();
-  if (!tasks.length || currentTaskIndex >= tasks.length) return;
+  if (!tasks.length) return;
   clearInterval(timerInterval);
   timerInterval = null;
-  onTaskComplete();
-  currentTaskIndex++;
-  updateTaskListUI();
-  runCurrentTask();
+  onTaskComplete(getConfig(currentList));
+  let idx = findNextEnabledTaskIndex(tasks, currentTaskIndex + 1);
+  if (idx === -1) {
+    currentTaskIndex = 0;
+    tasks.forEach(t => t.remainingTime = t.time);
+    updateTaskListUI();
+  } else {
+    currentTaskIndex = idx;
+    updateTaskListUI();
+    runCurrentTask();
+  }
 }
 
 function pauseTimer() {
@@ -625,8 +677,20 @@ function restartTimer() {
   timerInterval = null;
   const tasks = getCurrentTasks();
   currentTaskIndex = 0;
-  tasks.forEach(t => (t.remainingTime = t.time));
+  tasks.forEach(t => t.remainingTime = t.time);
   updateTaskListUI();
+}
+
+/************************
+ * Helper for skipping disabled tasks
+ ************************/
+function findNextEnabledTaskIndex(tasks, startIndex) {
+  for (let i = startIndex; i < tasks.length; i++) {
+    if (tasks[i].enabled) {
+      return i;
+    }
+  }
+  return -1;
 }
 
 /************************
@@ -651,7 +715,8 @@ function onFileLoaded(event) {
         name: nameNode ? nameNode.textContent : 'Unnamed',
         time: parsedTime,
         remainingTime: parsedTime,
-        editing: false
+        editing: false,
+        enabled: true
       };
     });
     importedFileData = { tasks: importedTasks, listName: listNameFromImport };
@@ -676,13 +741,11 @@ function importData(mode) {
 
   if (mode === 'replace') {
     if (importedListName) {
-      // If imported list doesn't exist, create it
       if (!lists[importedListName]) {
         lists[importedListName] = [];
         listConfigs[importedListName] = { ...DEFAULT_CONFIG };
         listOrder.push(importedListName);
       }
-      // Replace that list's tasks
       lists[importedListName] = newTasks;
       if (importedListName !== currentList) {
         delete lists[currentList];
@@ -708,7 +771,6 @@ function importData(mode) {
         if (idx >= 0) listOrder[idx] = importedListName;
         currentList = importedListName;
       } else {
-        // combine
         lists[currentList] = currentTasks.concat(newTasks);
       }
     } else {
@@ -757,7 +819,7 @@ function exportTasksToXML() {
 function updateProgressBar() {
   const tasks = getCurrentTasks();
   const progressBar = document.getElementById('progressBar');
-  if (!tasks.length || currentTaskIndex >= tasks.length) {
+  if (!tasks.length || currentTaskIndex >= tasks.length || !tasks[currentTaskIndex].enabled) {
     progressBar.style.width = '0%';
     return;
   }
@@ -770,17 +832,25 @@ function updateTimerInfo() {
   const timerText = document.getElementById('timerText');
   const timerPercent = document.getElementById('timerPercent');
   const tasks = getCurrentTasks();
-  if (!tasks.length || currentTaskIndex >= tasks.length) {
+  if (!tasks.length) {
+    timerText.textContent = 'No current task.';
+    timerPercent.textContent = '';
+    return;
+  }
+  if (currentTaskIndex >= tasks.length) {
     timerText.textContent = 'No current task.';
     timerPercent.textContent = '';
     return;
   }
   const currentTask = tasks[currentTaskIndex];
+  if (!currentTask.enabled) {
+    timerText.textContent = '(Disabled) ' + currentTask.name;
+    timerPercent.textContent = '0%';
+    return;
+  }
   const fraction = (currentTask.time - currentTask.remainingTime) / currentTask.time;
   const percentage = (fraction * 100).toFixed(2) + '%';
-  timerText.textContent =
-    `Current: ${currentTask.name} — ${formatTime(currentTask.time)} total, ` +
-    `${formatTime(currentTask.remainingTime)} left`;
+  timerText.textContent = `Current: ${currentTask.name} — ${formatTime(currentTask.time)} total, ${formatTime(currentTask.remainingTime)} left`;
   timerPercent.textContent = `Progress: ${percentage}`;
 }
 
@@ -788,8 +858,14 @@ function updateEstimatedFinishTime() {
   const estFinishElem = document.getElementById('estimatedFinishTime');
   const tasks = getCurrentTasks();
   let totalSecLeft = 0;
-  for (let i = currentTaskIndex; i < tasks.length; i++) {
-    totalSecLeft += tasks[i].remainingTime;
+
+  // Start from currentTaskIndex, skip disabled tasks
+  let i = currentTaskIndex;
+  while (i < tasks.length) {
+    if (tasks[i].enabled) {
+      totalSecLeft += tasks[i].remainingTime;
+    }
+    i++;
   }
   if (totalSecLeft <= 0) {
     estFinishElem.textContent = 'All tasks completed or no tasks available.';
@@ -812,28 +888,24 @@ function updateEstimatedFinishTime() {
  * Utility
  ************************/
 function formatTime(seconds) {
-  // If under a minute, show e.g. "45 seconds"
+  // If under a minute, e.g. "45 seconds"
   if (seconds < 60) {
     return `${seconds} second${seconds === 1 ? '' : 's'}`;
   }
-  // If under an hour, show e.g. "5m 30s"
+  // If under an hour, e.g. "5m 30s"
   if (seconds < 3600) {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}m ${secs}s`;
   }
-  // Otherwise show e.g. "1h 10m 20s"
+  // e.g. "1h 10m 20s"
   const hrs = Math.floor(seconds / 3600);
   const remainder = seconds % 3600;
   const mins = Math.floor(remainder / 60);
   const secs = remainder % 60;
   let result = `${hrs}h`;
-  if (mins > 0) {
-    result += ` ${mins}m`;
-  }
-  if (secs > 0) {
-    result += ` ${secs}s`;
-  }
+  if (mins > 0) result += ` ${mins}m`;
+  if (secs > 0) result += ` ${secs}s`;
   return result;
 }
 
@@ -853,6 +925,13 @@ function speakNotification(msg, config) {
     }
   }
   speechSynthesis.speak(utter);
+}
+
+function getConfig(listName) {
+  if (!listConfigs[listName]) {
+    listConfigs[listName] = { ...DEFAULT_CONFIG };
+  }
+  return listConfigs[listName];
 }
 
 function storeInCookie() {
@@ -882,7 +961,8 @@ function loadFromCookie() {
   listOrder = parsed.listOrder || Object.keys(lists);
   currentList = parsed.currentList || 'default';
   listConfigs = parsed.listConfigs || {};
-  // If any list is missing a config, fill with default
+
+  // fill missing configs
   for (let ln of Object.keys(lists)) {
     if (!listConfigs[ln]) {
       listConfigs[ln] = { ...DEFAULT_CONFIG };
@@ -900,7 +980,21 @@ function escapeXML(str) {
       case '"': return '&quot;';
     }
   });
+  
+  
 }
 
-/* Initialize on DOM load */
+function toggleOptionsMenu() {
+  const optionsMenu = document.getElementById('optionsMenu');
+  const isVisible = optionsMenu.style.display === 'block';
+  optionsMenu.style.display = isVisible ? 'none' : 'block';
+}
+
+function toggleHelpMenu() {
+  const helpMenu = document.getElementById('helpMenu');
+  const isVisible = helpMenu.style.display === 'block';
+  helpMenu.style.display = isVisible ? 'none' : 'block';
+}
+
+
 document.addEventListener('DOMContentLoaded', initApp);
