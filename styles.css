@@ -1,4 +1,4 @@
-/* Basic styling + new checkboxes for enabling/disabling tasks */
+/* Basic styling + updated consistency for classes */
 
 /* Basic page/container styling */
 html,
@@ -9,58 +9,65 @@ body {
   background: #f0f2f5;
   color: #333;
 }
+
 .container {
   width: 90%;
   max-width: 650px;
   margin: 30px auto;
   background: #fff;
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 8px; /* consistent with other elements */
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
+
 h1 {
   margin-top: 0;
   margin-bottom: 20px;
   text-align: center;
 }
 
-/* new: boxes around relevant sections */
+/* Boxes around relevant sections */
 .section-box {
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  border: 1px solid #ccc; /* unified border color */
+  border-radius: 8px; /* increased radius for consistency */
   padding: 10px;
   margin-bottom: 15px;
   background: #fafafa;
 }
 
-/* Moved estimated finish time to its own area */
+/* Estimated finish time (unified styles) */
 .estimated-finish {
-  font-size: 16px;
-  font-weight: bold;
+  margin-top: 10px; /* unified margin-top */
+  font-size: 16px; /* unified font-size */
+  font-weight: bold; /* preserved bold */
+  font-style: italic; /* added italic for consistency */
   text-align: center;
-  margin: 4px 0;
   color: #555;
 }
 
-/* Per-list options menu at the top */
+/* Options menu (unified styles) */
 .options-menu {
-  margin-bottom: 20px;
+  display: none; /* toggled in code */
+  margin-bottom: 20px; /* kept 20px for spacing */
   background: #fafafa;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  border: 1px solid #ccc; /* unified border color */
+  border-radius: 8px; /* consistent with container/sections */
   padding: 10px;
 }
+
 .options-menu h3 {
   margin: 0 0 10px;
   font-size: 16px;
   text-align: center;
 }
+
 .option-row {
   display: flex;
   align-items: center;
   gap: 10px;
   margin-bottom: 8px;
 }
+
 .option-row label {
   font-size: 14px;
   color: #333;
@@ -83,30 +90,36 @@ h1 {
   color: #fff;
   padding: 8px 10px;
   border-radius: 4px;
-  cursor: move; /* shows that it's draggable */
+  cursor: move; /* indicates draggable */
   position: relative;
   user-select: none;
 }
+
 .tab.active {
-  background: #1976d2; /* Active tab is darker */
+  background: #1976d2; /* darker for active tab */
 }
+
 .tab.dragging {
   opacity: 0.5;
   border: 2px dashed #ccc;
 }
+
 .tab-name {
   margin-right: 6px;
 }
+
 .tab-edit-icon {
   margin-left: 6px;
   cursor: pointer;
   color: #fff;
 }
+
 .tab-edit-controls {
   display: none;
   gap: 5px;
   align-items: center;
 }
+
 .tab-edit-input {
   min-width: 100px;
   padding: 3px 5px;
@@ -114,6 +127,7 @@ h1 {
   border: 1px solid #ccc;
   font-size: 14px;
 }
+
 .tab-edit-btn,
 .tab-delete-btn {
   background: #4caf50;
@@ -123,12 +137,15 @@ h1 {
   padding: 4px 6px;
   cursor: pointer;
 }
+
 .tab-edit-btn:hover {
   background: #43a047;
 }
+
 .tab-delete-btn {
   background: #f44336;
 }
+
 .tab-delete-btn:hover {
   background: #e53935;
 }
@@ -143,6 +160,7 @@ h1 {
   font-size: 14px;
   cursor: pointer;
 }
+
 .tab-add-btn:hover {
   background: #43a047;
 }
@@ -153,12 +171,14 @@ h1 {
   gap: 10px;
   margin-bottom: 15px;
 }
+
 #createListName {
   min-width: 120px;
   padding: 5px;
   border-radius: 4px;
   border: 1px solid #ccc;
 }
+
 #listCreateFields button {
   background: #4caf50;
   color: #fff;
@@ -168,12 +188,15 @@ h1 {
   cursor: pointer;
   font-size: 14px;
 }
+
 #listCreateFields button:hover {
   background: #43a047;
 }
+
 .btn-cancel {
   background: #f44336 !important;
 }
+
 .btn-cancel:hover {
   background: #e53935 !important;
 }
@@ -185,6 +208,7 @@ h1 {
   gap: 10px;
   margin: 0; /* replaced by .section-box spacing */
 }
+
 .task-input input,
 .task-input select {
   flex: 1;
@@ -194,6 +218,7 @@ h1 {
   border: 1px solid #ccc;
   border-radius: 4px;
 }
+
 .task-input button {
   background: #4caf50;
   color: #fff;
@@ -204,6 +229,7 @@ h1 {
   font-weight: bold;
   font-size: 14px;
 }
+
 .task-input button:hover {
   background: #43a047;
 }
@@ -214,31 +240,37 @@ h1 {
   padding: 0;
   margin: 0;
 }
+
 .task-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 8px;
   border-bottom: 1px solid #eee;
-  cursor: pointer; /* So user can click to set current task */
+  cursor: pointer; /* click to set current task */
 }
+
 .task-item .task-details {
   display: flex;
   flex-direction: column;
   flex: 1;
 }
+
 .task-item .task-details .task-name {
   font-weight: bold;
   margin-bottom: 2px;
 }
+
 .task-item .task-details .task-time {
   font-size: 14px;
 }
+
 .task-actions {
   display: flex;
   gap: 5px;
-  cursor: default; /* So user can click the controls w/o changing the current task */
+  cursor: default; /* prevents changing the current task when clicking these controls */
 }
+
 .task-actions button {
   background: #2196f3;
   color: #fff;
@@ -248,14 +280,17 @@ h1 {
   cursor: pointer;
   font-size: 12px;
 }
+
 .task-actions button:hover {
   background: #1976d2;
 }
+
 .edit-fields input {
   margin-right: 5px;
   padding: 4px;
   font-size: 12px;
 }
+
 .edit-fields button {
   background: #4caf50;
   color: #fff;
@@ -267,6 +302,7 @@ h1 {
   cursor: pointer;
   font-weight: bold;
 }
+
 .edit-fields button:hover {
   background: #43a047;
 }
@@ -275,11 +311,12 @@ h1 {
 .timer-section {
   margin-top: 20px;
   border: 1px solid #ccc;
-  border-radius: 6px;
+  border-radius: 8px; /* consistent radius */
   padding: 10px;
   background: #fafafa;
   margin-bottom: 15px;
 }
+
 .progress-container {
   background: #ddd;
   border-radius: 4px;
@@ -288,11 +325,13 @@ h1 {
   width: 100%;
   margin-bottom: 10px;
 }
+
 .progress-bar {
   background: #4caf50;
   height: 100%;
   transition: width 0.3s ease;
 }
+
 .timer-info {
   display: flex;
   align-items: center;
@@ -300,6 +339,7 @@ h1 {
   font-size: 14px;
   color: #555;
 }
+
 .timer-text,
 .timer-percent {
   margin: 4px 0;
@@ -313,6 +353,7 @@ h1 {
   justify-content: center;
   margin-bottom: 10px;
 }
+
 .controls button {
   border: none;
   border-radius: 4px;
@@ -325,33 +366,43 @@ h1 {
   align-items: center;
   gap: 5px;
 }
+
 .btn-start {
   background: #4caf50;
 }
+
 .btn-start:hover {
   background: #43a047;
 }
+
 .btn-skip {
   background: #ff9800;
 }
+
 .btn-skip:hover {
   background: #fb8c00;
 }
+
 .btn-complete {
   background: #2196f3;
 }
+
 .btn-complete:hover {
   background: #1976d2;
 }
+
 .btn-pause {
   background: #757575;
 }
+
 .btn-pause:hover {
   background: #616161;
 }
+
 .btn-red {
   background: #f44336;
 }
+
 .btn-red:hover {
   background: #e53935;
 }
@@ -360,11 +411,13 @@ h1 {
 .import-export {
   margin-top: 25px;
 }
+
 .export-section {
   display: flex;
   justify-content: center;
   margin-bottom: 20px;
 }
+
 .btn-export {
   background: #009688;
   color: #fff;
@@ -375,9 +428,11 @@ h1 {
   font-size: 14px;
   font-weight: bold;
 }
+
 .btn-export:hover {
   background: #00897b;
 }
+
 .import-section {
   display: flex;
   flex-wrap: wrap;
@@ -385,6 +440,7 @@ h1 {
   justify-content: center;
   margin-top: 10px;
 }
+
 .import-section input[type="file"] {
   background: #eee;
   border: none;
@@ -410,7 +466,7 @@ h1 {
 }
 
 #importFileBttn:hover {
-  background: #00897b; /* Darker green on hover */
+  background: #00897b;
 }
 
 .import-section input[type="file"]::-webkit-file-upload-button {
@@ -422,16 +478,9 @@ h1 {
   cursor: pointer;
   font-size: 14px;
 }
+
 .import-section input[type="file"]::-webkit-file-upload-button:hover {
   background: #00897b;
-}
-
-.estimated-finish {
-  margin-top: 10px;
-  font-size: 14px;
-  font-style: italic;
-  color: #555;
-  text-align: center;
 }
 
 /* Responsive adjustments */
@@ -442,12 +491,12 @@ h1 {
   .import-section {
     flex-direction: column;
   }
+
   .task-actions {
     flex-direction: column;
     align-items: flex-start;
   }
 }
-
 
 /* Header gear button for toggling options */
 header {
@@ -504,7 +553,6 @@ header {
   line-height: 1.5;
 }
 
-
 /* Help Section */
 #helpSection {
   border: 1px solid #ccc;
@@ -525,23 +573,7 @@ header {
   list-style: disc;
 }
 
-/* Options menu */
-.options-menu {
-  display: none;
-  margin-bottom: 15px;
-  border: 1px solid #ddd;
-  background: #fafafa;
-  border-radius: 8px;
-  padding: 10px;
-}
-
-.options-menu h3 {
-  margin-top: 0;
-  font-size: 16px;
-  text-align: center;
-}
-
-/* Toggle switch container */
+/* Toggle switch container within task actions */
 .task-actions .enable-checkbox-wrapper {
   position: relative;
   width: 40px;
@@ -592,4 +624,97 @@ header {
 
 .task-actions .enable-checkbox:checked + .enable-checkbox-label::after {
   transform: translateX(20px);
+}
+
+/* Dark mode styles */
+html.dark-mode {
+  background: #121212;
+  color: #ffffff;
+}
+
+body.dark-mode {
+  background: #121212;
+  color: #ffffff;
+}
+
+.container.dark-mode {
+  background: #1e1e1e;
+  box-shadow: 0 2px 6px rgba(255, 255, 255, 0.1);
+}
+
+.section-box.dark-mode {
+  background: #2a2a2a;
+}
+
+.options-menu.dark-mode,
+.help-menu.dark-mode {
+  background: #2a2a2a;
+  border-color: #444;
+}
+
+.tab.dark-mode {
+  background: #333;
+}
+
+.tab.active.dark-mode {
+  background: #444;
+}
+
+.task-item.dark-mode {
+  border-bottom: 1px solid #444;
+}
+
+.progress-container.dark-mode {
+  background: #333;
+  border-radius: 4px;
+  overflow: hidden;
+  height: 8px;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.progress-bar.dark-mode {
+  background: #76c7c0;
+}
+
+/* Dark mode toggle button */
+.dark-mode-button {
+  background: transparent;
+  border: none;
+  color: #2196f3;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.dark-mode-button:hover {
+  color: #1976d2;
+}
+
+.task-input.dark-mode input,
+.task-input.dark-mode select {
+  flex: 1;
+  min-width: 100px;
+  padding: 5px;
+  font-size: 14px;
+  border: 1px solid #333;
+  border-radius: 4px;
+  background: #333;
+  color: #ccc;
+}
+
+.timer-section.dark-mode {
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  background: #555;
+  color: #ccc;
+}
+
+.timer-info.dark-mode {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #ccc;
 }

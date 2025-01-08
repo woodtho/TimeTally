@@ -997,4 +997,61 @@ function toggleHelpMenu() {
 }
 
 
+function toggleDarkMode() {
+  
+  const rootElement = document.documentElement; // <html> element
+  const isDarkMode = rootElement.classList.toggle('dark-mode'); // Toggle dark mode on <html>
+
+ const bodyElement = document.body; // Reference to <body>
+ 
+ 
+  // Toggle dark mode for all relevant elements
+  
+   bodyElement.classList.toggle('dark-mode', isDarkMode);
+   
+  document.querySelectorAll(
+    '.container, .section-box, .options-menu, .help-menu, .tab, .task-item, .progress-container, .progress-bar, .progress-bar-fill, .task-input, .timer-section, .timer-info, .body'
+  ).forEach(el => el.classList.toggle('dark-mode', isDarkMode));
+
+  // Update the icon for the dark mode button
+  const icon = document.getElementById('toggleDarkModeButton').querySelector('i');
+  icon.classList.toggle('fa-moon', !isDarkMode);
+  icon.classList.toggle('fa-sun', isDarkMode);
+
+  // Save dark mode state in a cookie
+  document.cookie = `darkMode=${isDarkMode}; path=/; max-age=31536000`;
+}
+
+function loadDarkMode() {
+  const allCookies = document.cookie.split(';');
+  const darkModeCookie = allCookies.find(cookie => cookie.trim().startsWith('darkMode='));
+  const isDarkMode = darkModeCookie && darkModeCookie.split('=')[1] === 'true';
+
+  if (isDarkMode) {
+    const rootElement = document.documentElement; // <html> element
+    rootElement.classList.add('dark-mode'); // Apply dark mode to <html>
+
+    // Apply dark mode to all relevant elements
+    document.querySelectorAll(
+      '.container, .section-box, .options-menu, .help-menu, .tab, .task-item, .progress-container, .progress-bar, .progress-bar-fill, .task-input, .timer-section, .timer-info, .body'
+    ).forEach(el => el.classList.add('dark-mode'));
+
+    // Update the icon for the dark mode button
+    const icon = document.getElementById('toggleDarkModeButton').querySelector('i');
+    icon.classList.add('fa-sun');
+    icon.classList.remove('fa-moon');
+  }
+}
+
+// Attach event listener for DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => {
+  loadDarkMode(); // Load dark mode state on page load
+  const darkModeButton = document.getElementById('toggleDarkModeButton');
+  darkModeButton.addEventListener('click', toggleDarkMode); // Attach toggle event
+});
+
+
+
+
+
 document.addEventListener('DOMContentLoaded', initApp);
