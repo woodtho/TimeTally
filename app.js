@@ -1029,6 +1029,10 @@ function loadDarkMode() {
 
   if (isDarkMode) {
     const rootElement = document.documentElement; // <html> element
+    const bodyElement = document.body; // Reference to <body>
+    
+      bodyElement.classList.add('dark-mode', isDarkMode);
+    
     rootElement.classList.add('dark-mode'); // Apply dark mode to <html>
 
     // Apply dark mode to all relevant elements
