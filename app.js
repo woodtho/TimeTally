@@ -53,13 +53,11 @@ function initApp() {
   buildTabs();
   updateTaskListUI();
 
-  // Voice population
   populateVoiceList();
   if (speechSynthesis.onvoiceschanged !== undefined) {
     speechSynthesis.onvoiceschanged = populateVoiceList;
   }
 
-  // Setup checkboxes, selects, etc. for the current list
   updateOptionsUI();
 
   setInterval(updateEstimatedFinishTime, 5000);
@@ -98,10 +96,16 @@ function buildTabs() {
   addBtn.innerHTML = '<i class="fas fa-plus"></i>';
   addBtn.title = 'Create a New List';
   addBtn.onclick = enterListCreateMode;
+  if (document.documentElement.classList.contains('dark-mode')) {
+    addBtn.classList.add('dark-mode');
+  }
 
   listOrder.forEach(listName => {
     const tab = document.createElement('div');
     tab.className = 'tab' + (listName === currentList ? ' active' : '');
+    if (document.documentElement.classList.contains('dark-mode')) {
+      tab.classList.add('dark-mode');
+    }
     tab.draggable = true;
     tab.dataset.listName = listName;
 
@@ -120,31 +124,45 @@ function buildTabs() {
     editIcon.onclick = e => toggleTabEdit(e, tab, listName);
     tab.appendChild(editIcon);
 
-    // Inline rename/delete
     const controlsDiv = document.createElement('div');
     controlsDiv.className = 'tab-edit-controls';
+    if (document.documentElement.classList.contains('dark-mode')) {
+      controlsDiv.classList.add('dark-mode');
+    }
 
     const renameInput = document.createElement('input');
     renameInput.className = 'tab-edit-input';
     renameInput.value = listName;
+    if (document.documentElement.classList.contains('dark-mode')) {
+      renameInput.classList.add('dark-mode');
+    }
     controlsDiv.appendChild(renameInput);
 
     const saveBtn = document.createElement('button');
     saveBtn.className = 'tab-edit-btn';
     saveBtn.innerHTML = '<i class="fas fa-save"></i>';
     saveBtn.onclick = e => saveTabEdit(e, tab, listName, renameInput);
+    if (document.documentElement.classList.contains('dark-mode')) {
+      saveBtn.classList.add('dark-mode');
+    }
     controlsDiv.appendChild(saveBtn);
 
     const delBtn = document.createElement('button');
     delBtn.className = 'tab-delete-btn';
     delBtn.innerHTML = '<i class="fas fa-trash"></i>';
     delBtn.onclick = e => deleteTab(e, listName);
+    if (document.documentElement.classList.contains('dark-mode')) {
+      delBtn.classList.add('dark-mode');
+    }
     controlsDiv.appendChild(delBtn);
 
     const cancelBtn = document.createElement('button');
     cancelBtn.className = 'tab-edit-btn';
     cancelBtn.innerHTML = '<i class="fas fa-times"></i>';
     cancelBtn.onclick = e => cancelTabEdit(e, tab);
+    if (document.documentElement.classList.contains('dark-mode')) {
+      cancelBtn.classList.add('dark-mode');
+    }
     controlsDiv.appendChild(cancelBtn);
 
     tab.appendChild(controlsDiv);
@@ -217,7 +235,6 @@ function saveTabEdit(e, tab, oldName, renameInput) {
     if (currentList === oldName) {
       currentList = newName;
     }
-    // rename config
     listConfigs[newName] = listConfigs[oldName];
     delete listConfigs[oldName];
   }
@@ -234,7 +251,7 @@ function cancelTabEdit(e, tab) {
 }
 function deleteTab(e, listName) {
   e.stopPropagation();
-  if (listOrder.length <= 1) return; // can't delete the only list
+  if (listOrder.length <= 1) return;
   delete lists[listName];
   delete listConfigs[listName];
   const idx = listOrder.indexOf(listName);
@@ -365,7 +382,6 @@ function addTask() {
   if (timeUnit === 'minutes') timeInSeconds = taskTime * 60;
   if (timeUnit === 'hours') timeInSeconds = taskTime * 3600;
 
-  // New field: enabled = true
   tasks.push({
     name: taskName,
     time: timeInSeconds,
@@ -388,8 +404,10 @@ function updateTaskListUI() {
   tasks.forEach((task, index) => {
     const li = document.createElement('li');
     li.className = 'task-item';
+    if (document.documentElement.classList.contains('dark-mode')) {
+      li.classList.add('dark-mode');
+    }
 
-    // Clicking the list item sets currentTaskIndex, except for certain child elements
     li.addEventListener('click', (event) => {
       const ignoreEls = ['BUTTON', 'INPUT', 'LABEL', 'I'];
       if (ignoreEls.includes(event.target.tagName)) return;
@@ -399,32 +417,44 @@ function updateTaskListUI() {
 
     const details = document.createElement('div');
     details.className = 'task-details';
+    li.appendChild(details);
 
     if (!task.editing) {
       const nameEl = document.createElement('div');
       nameEl.className = 'task-name';
       nameEl.textContent =
         (index === currentTaskIndex ? '[Current] ' : '') + task.name;
+      details.appendChild(nameEl);
 
       const timeEl = document.createElement('div');
       timeEl.className = 'task-time';
       timeEl.textContent = `(${formatTime(task.remainingTime)} remaining)`;
-
-      details.appendChild(nameEl);
       details.appendChild(timeEl);
     } else {
       const editFields = document.createElement('div');
       editFields.className = 'edit-fields';
+      if (document.documentElement.classList.contains('dark-mode')) {
+        editFields.classList.add('dark-mode');
+      }
 
       const nameInput = document.createElement('input');
       nameInput.value = task.name;
+      if (document.documentElement.classList.contains('dark-mode')) {
+        nameInput.classList.add('dark-mode');
+      }
 
       const timeInput = document.createElement('input');
       timeInput.type = 'number';
       timeInput.value = task.time;
+      if (document.documentElement.classList.contains('dark-mode')) {
+        timeInput.classList.add('dark-mode');
+      }
 
       const saveButton = document.createElement('button');
       saveButton.innerHTML = '<i class="fas fa-save"></i>';
+      if (document.documentElement.classList.contains('dark-mode')) {
+        saveButton.classList.add('dark-mode');
+      }
       saveButton.onclick = () => {
         task.name = nameInput.value;
         const newTime = parseInt(timeInput.value, 10);
@@ -440,6 +470,9 @@ function updateTaskListUI() {
       const cancelButton = document.createElement('button');
       cancelButton.innerHTML = '<i class="fas fa-times"></i>';
       cancelButton.className = 'btn-cancel';
+      if (document.documentElement.classList.contains('dark-mode')) {
+        cancelButton.classList.add('dark-mode');
+      }
       cancelButton.onclick = () => {
         task.editing = false;
         updateTaskListUI();
@@ -452,10 +485,11 @@ function updateTaskListUI() {
       details.appendChild(editFields);
     }
 
-    li.appendChild(details);
-
     const actions = document.createElement('div');
     actions.className = 'task-actions';
+    if (document.documentElement.classList.contains('dark-mode')) {
+      actions.classList.add('dark-mode');
+    }
 
     // Enable/disable toggle switch
     const toggleWrapper = document.createElement('div');
@@ -484,6 +518,10 @@ function updateTaskListUI() {
     if (index > 0) {
       const upBtn = document.createElement('button');
       upBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+      upBtn.title = 'Move task up';
+      if (document.documentElement.classList.contains('dark-mode')) {
+        upBtn.classList.add('dark-mode');
+      }
       upBtn.onclick = (e) => {
         e.stopPropagation();
         [tasks[index], tasks[index - 1]] = [tasks[index - 1], tasks[index]];
@@ -499,6 +537,10 @@ function updateTaskListUI() {
     if (index < tasks.length - 1) {
       const downBtn = document.createElement('button');
       downBtn.innerHTML = '<i class="fas fa-arrow-down"></i>';
+      downBtn.title = 'Move task down';
+      if (document.documentElement.classList.contains('dark-mode')) {
+        downBtn.classList.add('dark-mode');
+      }
       downBtn.onclick = (e) => {
         e.stopPropagation();
         [tasks[index], tasks[index + 1]] = [tasks[index + 1], tasks[index]];
@@ -514,6 +556,10 @@ function updateTaskListUI() {
     if (!task.editing) {
       const editBtn = document.createElement('button');
       editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+      editBtn.title = 'Edit this task';
+      if (document.documentElement.classList.contains('dark-mode')) {
+        editBtn.classList.add('dark-mode');
+      }
       editBtn.onclick = (e) => {
         e.stopPropagation();
         task.editing = true;
@@ -526,12 +572,16 @@ function updateTaskListUI() {
     const removeBtn = document.createElement('button');
     removeBtn.innerHTML = '<i class="fas fa-trash"></i>';
     removeBtn.style.background = '#f44336';
+    removeBtn.title = 'Remove this task';
     removeBtn.onmouseover = () => {
       removeBtn.style.background = '#e53935';
     };
     removeBtn.onmouseout = () => {
       removeBtn.style.background = '#f44336';
     };
+    if (document.documentElement.classList.contains('dark-mode')) {
+      removeBtn.classList.add('dark-mode');
+    }
     removeBtn.onclick = (e) => {
       e.stopPropagation();
       tasks.splice(index, 1);
@@ -553,7 +603,6 @@ function updateTaskListUI() {
   updateTimerInfo();
 }
 
-
 /************************
  * Timer / Start / Skip / etc
  ************************/
@@ -565,22 +614,17 @@ function startTimer() {
 
 function runCurrentTask() {
   const tasks = getCurrentTasks();
-
-  // Find the next enabled task at or after currentTaskIndex
   let idx = findNextEnabledTaskIndex(tasks, currentTaskIndex);
   if (idx === -1) {
-    // No more enabled tasks => reset
     currentTaskIndex = 0;
     tasks.forEach(t => t.remainingTime = t.time);
     updateTaskListUI();
     return;
   }
-  currentTaskIndex = idx; // set it
-
+  currentTaskIndex = idx;
   const currentTask = tasks[currentTaskIndex];
   const config = getConfig(currentList);
 
-  // TTS at start
   if (config.ttsEnabled) {
     if (config.ttsMode === 'taskNamePlusDurationStart') {
       const msg = `Starting: ${currentTask.name}, which is ${formatTime(currentTask.time)}.`;
@@ -599,10 +643,8 @@ function runCurrentTask() {
       clearInterval(timerInterval);
       timerInterval = null;
       onTaskComplete(config);
-      // Move to next enabled
       idx = findNextEnabledTaskIndex(tasks, currentTaskIndex + 1);
       if (idx === -1) {
-        // no next enabled => reset
         currentTaskIndex = 0;
         tasks.forEach(t => t.remainingTime = t.time);
         updateTaskListUI();
@@ -633,10 +675,8 @@ function skipTask() {
   if (!tasks.length) return;
   clearInterval(timerInterval);
   timerInterval = null;
-  // find next enabled after currentTaskIndex+1
   let idx = findNextEnabledTaskIndex(tasks, currentTaskIndex + 1);
   if (idx === -1) {
-    // none => reset
     currentTaskIndex = 0;
     tasks.forEach(t => t.remainingTime = t.time);
     updateTaskListUI();
@@ -755,12 +795,10 @@ function importData(mode) {
       }
       currentList = importedListName;
     } else {
-      // no listName => just replace current tasks
       lists[currentList] = newTasks;
     }
     currentTaskIndex = 0;
   } else {
-    // add
     if (importedListName && currentTasks.length === 0) {
       if (!lists[importedListName]) {
         lists[importedListName] = newTasks;
@@ -859,7 +897,6 @@ function updateEstimatedFinishTime() {
   const tasks = getCurrentTasks();
   let totalSecLeft = 0;
 
-  // Start from currentTaskIndex, skip disabled tasks
   let i = currentTaskIndex;
   while (i < tasks.length) {
     if (tasks[i].enabled) {
@@ -888,17 +925,14 @@ function updateEstimatedFinishTime() {
  * Utility
  ************************/
 function formatTime(seconds) {
-  // If under a minute, e.g. "45 seconds"
   if (seconds < 60) {
     return `${seconds} second${seconds === 1 ? '' : 's'}`;
   }
-  // If under an hour, e.g. "5m 30s"
   if (seconds < 3600) {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}m ${secs}s`;
   }
-  // e.g. "1h 10m 20s"
   const hrs = Math.floor(seconds / 3600);
   const remainder = seconds % 3600;
   const mins = Math.floor(remainder / 60);
@@ -962,7 +996,6 @@ function loadFromCookie() {
   currentList = parsed.currentList || 'default';
   listConfigs = parsed.listConfigs || {};
 
-  // fill missing configs
   for (let ln of Object.keys(lists)) {
     if (!listConfigs[ln]) {
       listConfigs[ln] = { ...DEFAULT_CONFIG };
@@ -980,8 +1013,6 @@ function escapeXML(str) {
       case '"': return '&quot;';
     }
   });
-  
-  
 }
 
 function toggleOptionsMenu() {
@@ -996,29 +1027,20 @@ function toggleHelpMenu() {
   helpMenu.style.display = isVisible ? 'none' : 'block';
 }
 
-
 function toggleDarkMode() {
-  
-  const rootElement = document.documentElement; // <html> element
-  const isDarkMode = rootElement.classList.toggle('dark-mode'); // Toggle dark mode on <html>
+  const rootElement = document.documentElement;
+  const isDarkMode = rootElement.classList.toggle('dark-mode');
+  const bodyElement = document.body;
+  bodyElement.classList.toggle('dark-mode', isDarkMode);
 
- const bodyElement = document.body; // Reference to <body>
- 
- 
-  // Toggle dark mode for all relevant elements
-  
-   bodyElement.classList.toggle('dark-mode', isDarkMode);
-   
   document.querySelectorAll(
-    '.container, .section-box, .options-menu, .help-menu, .tab, .task-item, .progress-container, .progress-bar, .progress-bar-fill, .task-input, .timer-section, .timer-info, .body'
+    '.container, .section-box, .options-menu, .help-menu, .tab, .task-item, .progress-container, .progress-bar, .progress-bar-fill, .task-input, .timer-section, .timer-info, .body, .estimated-finish, .option-row, .tab-edit-input'
   ).forEach(el => el.classList.toggle('dark-mode', isDarkMode));
 
-  // Update the icon for the dark mode button
   const icon = document.getElementById('toggleDarkModeButton').querySelector('i');
   icon.classList.toggle('fa-moon', !isDarkMode);
   icon.classList.toggle('fa-sun', isDarkMode);
 
-  // Save dark mode state in a cookie
   document.cookie = `darkMode=${isDarkMode}; path=/; max-age=31536000`;
 }
 
@@ -1028,34 +1050,25 @@ function loadDarkMode() {
   const isDarkMode = darkModeCookie && darkModeCookie.split('=')[1] === 'true';
 
   if (isDarkMode) {
-    const rootElement = document.documentElement; // <html> element
-    const bodyElement = document.body; // Reference to <body>
-    
-      bodyElement.classList.add('dark-mode', isDarkMode);
-    
-    rootElement.classList.add('dark-mode'); // Apply dark mode to <html>
+    const rootElement = document.documentElement;
+    const bodyElement = document.body;
+    bodyElement.classList.add('dark-mode');
+    rootElement.classList.add('dark-mode');
 
-    // Apply dark mode to all relevant elements
     document.querySelectorAll(
-      '.container, .section-box, .options-menu, .help-menu, .tab, .task-item, .progress-container, .progress-bar, .progress-bar-fill, .task-input, .timer-section, .timer-info, .body'
+      '.container, .section-box, .options-menu, .help-menu, .tab, .task-item, .progress-container, .progress-bar, .progress-bar-fill, .task-input, .timer-section, .timer-info, .body, .estimated-finish, .option-row, .tab-edit-input'
     ).forEach(el => el.classList.add('dark-mode'));
 
-    // Update the icon for the dark mode button
     const icon = document.getElementById('toggleDarkModeButton').querySelector('i');
     icon.classList.add('fa-sun');
     icon.classList.remove('fa-moon');
   }
 }
 
-// Attach event listener for DOMContentLoaded
 document.addEventListener('DOMContentLoaded', () => {
-  loadDarkMode(); // Load dark mode state on page load
+  loadDarkMode();
   const darkModeButton = document.getElementById('toggleDarkModeButton');
-  darkModeButton.addEventListener('click', toggleDarkMode); // Attach toggle event
+  darkModeButton.addEventListener('click', toggleDarkMode);
 });
-
-
-
-
 
 document.addEventListener('DOMContentLoaded', initApp);
