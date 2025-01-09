@@ -553,28 +553,8 @@ header {
   line-height: 1.5;
 }
 
-/* Help Section */
-#helpSection {
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 10px;
-  background: #f9f9f9;
-  margin-bottom: 20px;
-  font-size: 14px;
-}
-
-#helpSection p {
-  margin: 0;
-}
-
-#helpSection ul {
-  margin: 5px 0 0 20px;
-  padding: 0;
-  list-style: disc;
-}
-
-/* Toggle switch container within task actions */
-.task-actions .enable-checkbox-wrapper {
+/* Toggle switch container (used in tasks and options) */
+.enable-checkbox-wrapper {
   position: relative;
   width: 40px;
   height: 20px;
@@ -582,14 +562,14 @@ header {
 }
 
 /* Hide the default checkbox */
-.task-actions .enable-checkbox {
+.enable-checkbox {
   opacity: 0;
   width: 0;
   height: 0;
 }
 
 /* Custom toggle switch background */
-.task-actions .enable-checkbox-label {
+.enable-checkbox-label {
   position: absolute;
   top: 0;
   left: 0;
@@ -603,7 +583,7 @@ header {
 }
 
 /* Knob inside the toggle switch */
-.task-actions .enable-checkbox-label::after {
+.enable-checkbox-label::after {
   content: '';
   position: absolute;
   top: 2px;
@@ -617,12 +597,12 @@ header {
 }
 
 /* When checkbox is checked */
-.task-actions .enable-checkbox:checked + .enable-checkbox-label {
+.enable-checkbox:checked + .enable-checkbox-label {
   background-color: #4caf50;
   border-color: #43a047;
 }
 
-.task-actions .enable-checkbox:checked + .enable-checkbox-label::after {
+.enable-checkbox:checked + .enable-checkbox-label::after {
   transform: translateX(20px);
 }
 
@@ -735,7 +715,6 @@ body.dark-mode {
 .task-input.dark-mode input::placeholder {
   color: #fff;
 }
-
 
 .tab-edit-input.dark-mode {
   min-width: 100px;

@@ -24,11 +24,12 @@
             <i class="fas fa-question-circle"></i>
           </button>
           <button id="toggleDarkModeButton" class="dark-mode-button" title="Toggle Dark Mode">
-  <i class="fas fa-moon"></i>
-</button>
+            <i class="fas fa-moon"></i>
+          </button>
         </div>
       </header>
-       <!-- Collapsible Help Section -->
+
+      <!-- Collapsible Help Section -->
       <div class="help-menu" id="helpMenu" style="display: none;">
         <h3>How to Use TimeTally</h3>
         <p>
@@ -61,16 +62,33 @@
           <i class="fas fa-times"></i>
         </button>
       </div>
-            <!-- Collapsible Options -->
+
+      <!-- Collapsible Options -->
       <div class="options-menu" id="optionsMenu" style="display: none;">
         <h3>List Options</h3>
         <div class="option-row">
-          <label for="beepCheckbox">Enable Beep?</label>
-          <input type="checkbox" id="beepCheckbox" onchange="onBeepCheckboxChange()" />
+          <label>Enable Beep?</label>
+          <div class="enable-checkbox-wrapper">
+            <input
+              type="checkbox"
+              id="beepCheckbox"
+              class="enable-checkbox"
+              onchange="onBeepCheckboxChange()"
+            />
+            <label class="enable-checkbox-label" for="beepCheckbox"></label>
+          </div>
         </div>
         <div class="option-row">
-          <label for="ttsCheckbox">Enable TTS?</label>
-          <input type="checkbox" id="ttsCheckbox" onchange="onTTSCheckboxChange()" />
+          <label>Enable TTS?</label>
+          <div class="enable-checkbox-wrapper">
+            <input
+              type="checkbox"
+              id="ttsCheckbox"
+              class="enable-checkbox"
+              onchange="onTTSCheckboxChange()"
+            />
+            <label class="enable-checkbox-label" for="ttsCheckbox"></label>
+          </div>
         </div>
         <div class="option-row">
           <label for="voiceSelect">Voice:</label>
@@ -98,10 +116,12 @@
           />
         </div>
       </div>
+
       <!-- Section for showing the estimated finish time -->
       <div class="section-box">
         <div class="estimated-finish" id="estimatedFinishTime"></div>
       </div>
+
       <!-- Task creation area in its own box -->
       <div class="section-box">
         <div class="task-input">
@@ -117,8 +137,10 @@
           </button>
         </div>
       </div>
+
       <!-- List of tasks -->
       <ul id="taskList"></ul>
+
       <!-- Timer info (progress bar + textual info) -->
       <div class="timer-section">
         <div class="progress-container">
